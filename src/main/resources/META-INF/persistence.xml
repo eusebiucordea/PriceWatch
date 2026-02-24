@@ -5,8 +5,8 @@
              version="3.0">
     <persistence-unit name="default" transaction-type="JTA">
         <jta-data-source>jdbc/PriceWatchResource</jta-data-source>
-<!--        <class>com.pricewatch.pricewatch.entities.User</class>-->
-<!--        <class>com.pricewatch.pricewatch.entities.Products</class>-->
+        <class>com.pricewatch.pricewatch.entities.User</class>
+        <class>com.pricewatch.pricewatch.entities.Products</class>
 
         <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="create-or-extend-tables" />
