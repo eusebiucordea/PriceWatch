@@ -14,7 +14,7 @@ public class Products {
     private Float all_time_low;
 
     @Column(name = "image_url", nullable = false)
-    private Long image_url;
+    private String image_url;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -27,11 +27,11 @@ public class Products {
         this.all_time_low = all_time_low;
     }
 
-    public Long getImage_url() {
+    public String getImage_url() {
         return image_url;
     }
 
-    public void setImage_url(Long image_url) {
+    public void setImage_url(String image_url) {
         this.image_url = image_url;
     }
 

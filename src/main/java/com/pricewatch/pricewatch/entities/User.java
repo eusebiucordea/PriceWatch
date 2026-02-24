@@ -10,14 +10,16 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "username")
+    private String username;
+
     @Column(name = "password")
     private String password;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "username")
-    private String username;
+
 
     public String getPassword() {
         return password;
