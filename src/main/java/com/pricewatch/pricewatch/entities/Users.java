@@ -19,7 +19,17 @@ public class Users {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Roles role;
 
+    public Roles getRole() {
+        return role;
+    }
+
+    public void setRole(Roles role) {
+        this.role = role;
+    }
 
     public String getPassword() {
         return password;

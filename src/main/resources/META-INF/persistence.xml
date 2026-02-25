@@ -10,6 +10,7 @@
         <class>com.pricewatch.pricewatch.entities.ProductLink</class>
         <class>com.pricewatch.pricewatch.entities.PriceHistory</class>
         <class>com.pricewatch.pricewatch.entities.UserAlert</class>
+        <class>com.pricewatch.pricewatch.entities.Roles</class>
 
         <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="create-or-extend-tables" />
