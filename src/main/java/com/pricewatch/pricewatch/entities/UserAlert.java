@@ -15,7 +15,7 @@ public class UserAlert {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Users users;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
@@ -37,12 +37,12 @@ public class UserAlert {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Users getUser() {
+        return users;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(Users users) {
+        this.users = users;
     }
 
     public Products getProduct() {

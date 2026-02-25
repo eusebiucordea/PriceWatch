@@ -18,11 +18,14 @@
 
             <li class="nav-item">
                 <a class="nav-link ${activePage eq 'Products' ? 'active' : ''}"
-                   href="${pageContext.request.contextPath}/Products">Products</a>
+                   href="${pageContext.request.contextPath}/Products">Products
+                </a>
             </li>
 
             <li class="nav-item">
-                <a href="#" class="nav-link">Users</a>
+                <a class="nav-link ${activePage eq 'Users' ? 'active' : ''}"
+                   href="${pageContext.request.contextPath}/Users">Users
+                </a>
             </li>
 
             <li class="nav-item">

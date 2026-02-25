@@ -5,7 +5,7 @@
              version="3.0">
     <persistence-unit name="default" transaction-type="JTA">
         <jta-data-source>jdbc/PriceWatchResource</jta-data-source>
-        <class>com.pricewatch.pricewatch.entities.User</class>
+        <class>com.pricewatch.pricewatch.entities.Users</class>
         <class>com.pricewatch.pricewatch.entities.Products</class>
         <class>com.pricewatch.pricewatch.entities.ProductLink</class>
         <class>com.pricewatch.pricewatch.entities.PriceHistory</class>
