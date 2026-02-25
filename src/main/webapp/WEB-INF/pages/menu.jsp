@@ -7,37 +7,41 @@
             <li class="nav-item">
                 <a href="${pageContext.request.contextPath}/" class="nav-link">Home</a>
             </li>
+
             <li class="nav-item">
                 <a href="${pageContext.request.contextPath}/about.jsp" class="nav-link">About</a>
             </li>
+
             <li class="nav-item">
                 <a href="#" class="nav-link">Dashboard</a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link ${activePage eq 'Products' ? 'active' : ''}"
                    href="${pageContext.request.contextPath}/Products">Products</a>
             </li>
+
+            <li class="nav-item">
+                <a href="#" class="nav-link">Users</a>
+            </li>
+
             <li class="nav-item">
                 <a href="${pageContext.request.contextPath}/Login" class="nav-link">Login</a>
             </li>
+
         </ul>
+
+<%--        script highlight buton selectat--%>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                // 1. Luăm link-ul paginii curente pe care se află utilizatorul
                 const currentLocation = window.location.href;
-
-                // 2. Selectăm toate link-urile din meniul tău
                 const navLinks = document.querySelectorAll('.nav-pills .nav-link');
 
-                // 3. Trecem prin fiecare link
                 navLinks.forEach(link => {
-                    // Dacă adresa din link se potrivește cu adresa paginii curente...
                     if (link.href === currentLocation) {
-                        // ...îi adăugăm clasa 'active' pentru a se face albastru
                         link.classList.add('active');
                         link.setAttribute('aria-current', 'page');
                     } else {
-                        // Altfel, ne asigurăm că nu o are
                         link.classList.remove('active');
                         link.removeAttribute('aria-current');
                     }
