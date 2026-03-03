@@ -27,7 +27,7 @@
                 <c:forEach var="user" items="${users}">
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4 text-sm text-slate-400 font-mono">
-                            #${user.id}
+                            ${user.id}
                         </td>
                         <td class="px-6 py-4">
                             <span class="font-medium text-slate-800">${user.username}</span>
