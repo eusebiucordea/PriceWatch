@@ -2,6 +2,9 @@ package com.pricewatch.pricewatch.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 @Entity
 @Table(name = "roles")
 public class Roles {
@@ -11,10 +14,27 @@ public class Roles {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
-    private String name; // admin/user
+    @Column(name = "roleName", nullable = false, unique = true)
+    private String roleName; // admin/user
 
+    @Column(name = "username")
+    private String username;
 
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public Long getId() {
         return id;
@@ -24,11 +44,14 @@ public class Roles {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    @OneToMany(mappedBy = "role", orphanRemoval = true)
+    private Collection<Users> users = new ArrayList<>();
+
+    public Collection<Users> getUsers() {
+        return users;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsers(Collection<Users> users) {
+        this.users = users;
     }
 }

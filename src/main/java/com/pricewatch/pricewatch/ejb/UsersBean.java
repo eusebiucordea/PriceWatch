@@ -31,10 +31,12 @@ public class UsersBean {
             UserDto dto = new UserDto(
                     entity.getId(),      // Acum va funcționa, deoarece User are aceste metode
                     entity.getUsername(),
-                    entity.getEmail()
+                    entity.getEmail(),
+                    entity.getRole() != null ? entity.getRole().getRoleName() : "Unknown"
             );
             usersDtoList.add(dto);
         }
         return usersDtoList;
     }
+
 }
