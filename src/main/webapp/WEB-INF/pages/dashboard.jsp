@@ -6,5 +6,4 @@
     <header class="mb-8">
     <h1 class="text-3xl font-extrabold text-slate-900">Dashboard</h1>
     </header>
-
 </t:pageTemplate>

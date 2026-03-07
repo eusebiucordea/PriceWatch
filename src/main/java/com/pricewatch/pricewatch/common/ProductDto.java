@@ -4,9 +4,9 @@ public class ProductDto {
     private Long id;
     private String name;
     private String image_url;
-    private Float all_time_low;
+    private Double all_time_low;
 
-    public ProductDto(Long id, String name, String image_url, Float all_time_low) {
+    public ProductDto(Long id, String name, String image_url, Double all_time_low) {
         this.id = id;
         this.name = name;
         this.image_url = image_url;
@@ -37,11 +37,11 @@ public class ProductDto {
         this.image_url = image_url;
     }
 
-    public Float getAll_time_low() {
+    public Double getAll_time_low() {
         return all_time_low;
     }
 
-    public void setAll_time_low(Float all_time_low) {
+    public void setAll_time_low(Double all_time_low) {
         this.all_time_low = all_time_low;
     }
 }

@@ -11,19 +11,19 @@ public class Products {
     private Long id;
 
     @Column(name = "all_time_low", nullable = false)
-    private Float all_time_low;
+    private Double all_time_low;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, length = 1000)
     private String image_url;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    public Float getAll_time_low() {
+    public Double getAll_time_low() {
         return all_time_low;
     }
 
-    public void setAll_time_low(Float all_time_low) {
+    public void setAll_time_low(Double all_time_low) {
         this.all_time_low = all_time_low;
     }
 
