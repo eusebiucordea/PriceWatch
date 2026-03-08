@@ -14,7 +14,6 @@
             </a>
         </div>
 
-
         <div class="hidden md:flex items-center gap-8">
             <a href="${pageContext.request.contextPath}/Dashboard"
                class="nav-link-custom text-sm font-semibold transition-colors ${activePage eq 'Dashboard' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'} no-underline">
@@ -35,13 +34,7 @@
                class="nav-link-custom text-sm font-semibold transition-colors ${activePage eq 'Users' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'} no-underline">
                 Users
             </a>
-
-            <a href="${pageContext.request.contextPath}/Login"
-               class="nav-link-custom text-sm font-semibold transition-colors text-slate-500 hover:text-slate-800 no-underline">
-                Login
-            </a>
         </div>
-
 
         <div class="flex items-center gap-4">
             <button class="p-2 text-slate-400 hover:text-blue-600 relative bg-transparent border-none cursor-pointer">
@@ -53,10 +46,10 @@
                 <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
             </button>
 
-            <%-- user avatar--%>
-            <div class="w-8 h-8 bg-blue-100 rounded-full border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-blue-600 font-bold text-xs cursor-pointer">
-                AP
-            </div>
+            <a href="${pageContext.request.contextPath}/Login"
+               class="nav-link-custom text-sm font-semibold transition-colors text-slate-500 hover:text-slate-800 no-underline">
+                Login
+            </a>
         </div>
     </nav>
 

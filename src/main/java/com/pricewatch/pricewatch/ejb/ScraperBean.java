@@ -26,7 +26,14 @@ public class ScraperBean {
     private static final Map<String, String> STORE_SELECTORS = Map.of(
             "emag", "p.product-new-price",
             "altex", ".Price-int",
-            "pc garage", "div.pb-price"
+            "pc garage", ".price_num",
+            "flanco", ".price",
+            "mediagalaxy", ".Price-int",
+            "evomag", ".pret_rons",
+            "itgalaxy", ".price-value",
+            "vexio", ".price-value",
+            "cel", ".product-price",
+            "domo", ".product-price"
     );
 
     private Double parsePriceText(String priceText) {
@@ -36,6 +43,17 @@ public class ScraperBean {
             return Double.parseDouble(cleanText);
         } catch (Exception e) {
             LOG.warning("Eroare la parsarea pretului: " + priceText);
+            return null;
+        }
+    }
+
+    private Double getLowestCurrentPriceForProduct(Long productId) {
+        try {
+            // cauta cel mai mic lastPrice din toate link-urile asociate acestui produs
+            return em.createQuery("SELECT MIN(pl.lastPrice) FROM ProductLink pl WHERE pl.product.id = :prodId", Double.class)
+                    .setParameter("prodId", productId)
+                    .getSingleResult();
+        } catch (Exception e) {
             return null;
         }
     }
@@ -88,30 +106,44 @@ public class ScraperBean {
                         Double noulPret = parsePriceText(priceText);
 
                         if (noulPret != null) {
+                            // 1. actualizam ProductLink (magazinul curent)
                             link.setLastPrice(noulPret);
                             link.setLastChecked(LocalDateTime.now());
                             em.merge(link);
 
+                            // 2. inregistram istoricul
                             PriceHistory history = new PriceHistory();
                             history.setProductLink(link);
                             history.setPrice(noulPret);
                             history.setRecordedAt(LocalDateTime.now());
                             em.persist(history);
 
+                            // 3. ne ocupam de produsul principal
                             Products product = link.getProduct();
                             if (product != null) {
-                                Double curentAllTimeLow = product.getAll_time_low();
-                                if (curentAllTimeLow == null || noulPret < curentAllTimeLow) {
-                                    LOG.info("Pret nou record gasit. Actualizam all_time_low.");
-                                    product.setAll_time_low(noulPret);
+                                // facem flush pentru ca baza de date sa inregistreze noul lastPrice la linkul de mai sus
+                                // inainte de a calcula minimul absolut
+                                em.flush();
+
+                                // 4. recalculam care e cel mai mic pret dintre toate magazinele ACUM
+                                Double lowestCurrentPrice = getLowestCurrentPriceForProduct(product.getId());
+
+                                if (lowestCurrentPrice != null) {
+                                    // actualizam pretul de astazi
+                                    product.setCurrent_price(lowestCurrentPrice);
+
+                                    // 5. verificam daca acest nou pret curent minim este all time low
+                                    Double curentAllTimeLow = product.getAll_time_low();
+                                    if (curentAllTimeLow == null || lowestCurrentPrice < curentAllTimeLow) {
+                                        LOG.info("Pret record nou pentru " + product.getName() + ": " + lowestCurrentPrice);
+                                        product.setAll_time_low(lowestCurrentPrice);
+                                    }
+                                    // salvam produsul
                                     em.merge(product);
                                 }
                             }
                             LOG.info("Verificare finalizata cu succes pentru: " + link.getUrl());
                         }
-
-                    } catch (Exception e) {
-                        LOG.log(Level.SEVERE, "Eroare la procesarea link-ului: " + link.getUrl(), e.getMessage());
                     }
                 }
             }

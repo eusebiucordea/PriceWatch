@@ -11,7 +11,7 @@
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between ">
             <h3 class="text-lg font-bold text-slate-800">Tracked Products</h3>
             <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center  hover:bg-blue-700 transition-colors">
-                <i data-lucide="plus" class="w-4 h-4"></i> Add New
+                 Add New
             </button>
         </div>
 
@@ -20,8 +20,9 @@
                 <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
                 <tr>
                     <th class="px-6 py-4">ID</th>
-                    <th class="px-6 py-4">Image</th>
+<%--                    <th class="px-6 py-4">Image</th>--%>
                     <th class="px-6 py-4">Product Name</th>
+                    <th class="px-6 py-4">Current Price</th>
                     <th class="px-6 py-4">All-Time Low</th>
                     <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
@@ -30,16 +31,21 @@
                 <c:forEach var="product" items="${products}">
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4 text-sm text-slate-500 font-mono">
-                            ${product.id}
+                            #${product.id}
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-500 font-mono">
-                                ${product.image_url}
-                        </td>
+<%--                        <td class="px-6 py-4 text-sm text-slate-500 font-mono">--%>
+<%--                                ${product.image_url}--%>
+<%--                        </td>--%>
                         <td class="px-6 py-4 font-semibold text-slate-800">
                                 ${product.name}
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-green-50 text-green-600">
+                                ${product.current_price} RON
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-red-50 text-red-600">
                                 ${product.all_time_low} RON
                             </span>
                         </td>

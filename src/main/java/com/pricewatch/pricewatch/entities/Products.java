@@ -19,6 +19,17 @@ public class Products {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "current_price")
+    private Double current_price;
+
+    public Double getCurrent_price() {
+        return current_price;
+    }
+
+    public void setCurrent_price(Double current_price) {
+        this.current_price = current_price;
+    }
+
     public Double getAll_time_low() {
         return all_time_low;
     }

@@ -16,7 +16,7 @@ public class Dashboard extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        scraperBean.scrapeAllProducts();
+//        scraperBean.scrapeAllProducts();
         request.getRequestDispatcher("/WEB-INF/pages/dashboard.jsp").forward(request,response);
     }
 

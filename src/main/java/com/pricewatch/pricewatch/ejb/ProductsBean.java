@@ -34,7 +34,8 @@ public class ProductsBean {
                     entity.getId(),
                     entity.getName(),
                     entity.getImage_url(),
-                    entity.getAll_time_low()
+                    entity.getAll_time_low(),
+                    entity.getCurrent_price()
             );
             productsDtoList.add(dto);
         }
