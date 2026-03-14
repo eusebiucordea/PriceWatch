@@ -10,9 +10,10 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between ">
             <h3 class="text-lg font-bold text-slate-800">Tracked Products</h3>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center  hover:bg-blue-700 transition-colors">
-                 Add New
-            </button>
+            <a href="${pageContext.request.contextPath}/AddProduct"
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center  hover:bg-blue-700 transition-colors">
+                 Add Product
+            </a>
         </div>
 
         <div class="overflow-x-auto">
@@ -36,7 +37,7 @@
 <%--                        <td class="px-6 py-4 text-sm text-slate-500 font-mono">--%>
 <%--                                ${product.image_url}--%>
 <%--                        </td>--%>
-                        <td class="px-6 py-4 font-semibold text-slate-800">
+                        <td class="px-6 py-4 font-semibold text-slate-800 max-w-sm truncate" title="${product.name}">
                                 ${product.name}
                         </td>
                         <td class="px-6 py-4">
@@ -52,12 +53,18 @@
 
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end items-center">
-                                <button title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
+                                <a title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
                                     <i data-lucide="info" class="w-5 h-5">View Details</i>
-                                </button>
-                                <button title="Delete Product" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
-                                    <i data-lucide="trash-2" class="w-5 h-5">Delete</i>
-                                </button>
+                                </a>
+                                <a href="${pageContext.request.contextPath}/EditProduct?id=${product.id}" title="Edit" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all inline-block">
+                                    <i data-lucide="edit" class="w-5 h-5">Edit</i>
+                                </a>
+                                <form action="${pageContext.request.contextPath}/DeleteProduct" method="POST" class="inline-block m-0" onsubmit="return confirm('Esti sigur ca vrei sa stergi acest produs? Tot istoricul de preturi va fi pierdut.');">
+                                    <input type="hidden" name="id" value="${product.id}">
+                                    <button type="submit" title="Delete Product" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
+                                        <i data-lucide="trash-2" class="w-5 h-5">Delete</i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

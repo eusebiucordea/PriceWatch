@@ -13,7 +13,7 @@ public class Products {
     @Column(name = "all_time_low", nullable = false)
     private Double all_time_low;
 
-    @Column(name = "image_url", nullable = false, length = 1000)
+    @Column(name = "image_url", length = 1000)
     private String image_url;
 
     @Column(name = "name", nullable = false)
