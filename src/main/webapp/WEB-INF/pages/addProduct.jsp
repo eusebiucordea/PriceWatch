@@ -154,7 +154,7 @@
             <div class="grid">
                 <div class="card">
                     <h3>Automatic Search</h3>
-                    <form action="add-product-action" method="POST">
+                    <form action="AddProductAction" method="POST">
                         <input type="hidden" name="action" value="search">
                         <div class="form-group">
                             <label>Product Name</label>
@@ -166,21 +166,11 @@
 
                 <div class="card">
                     <h3>Direct Link</h3>
-                    <form action="add-product-action" method="POST">
+                    <form action="AddProductAction" method="POST">
                         <input type="hidden" name="action" value="manual">
                         <div class="form-group">
                             <label>Product URL</label>
                             <input type="text" name="productUrl" placeholder="https://www.emag.ro/..." required>
-                        </div>
-                        <div class="form-group">
-                            <label>Store</label>
-                            <select name="storeName">
-                                <option value="emag">eMAG</option>
-                                <option value="altex">Altex</option>
-                                <option value="pc garage">PC Garage</option>
-                                <option value="flanco">Flanco</option>
-                                <option value="flanco">Media Galaxy</option>
-                            </select>
                         </div>
                         <button type="submit">Start Tracking</button>
                     </form>

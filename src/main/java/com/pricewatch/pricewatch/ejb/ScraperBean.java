@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -16,6 +17,7 @@ import java.util.logging.Logger;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import jakarta.ejb.Schedule;
 
 @Stateless
 public class ScraperBean {
@@ -35,26 +37,30 @@ public class ScraperBean {
         }
     }
 
-    private static final Map<String, StoreConfig> STORES = Map.of(
-            "emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"),
-            "altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a.Product-link"),
-            "pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.product_box_name a"),
-            "flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"),
-            "mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a.Product-link")
-    );
+    // declaram harțile ca fiind goale, dar gata sa primească date hashmap
+    private static final Map<String, StoreConfig> STORES = new HashMap<>();
+    private static final Map<String, String> STORE_SELECTORS = new HashMap<>();
 
-    private static final Map<String, String> STORE_SELECTORS = Map.of(
-            "emag", "p.product-new-price",
-            "altex", ".text-red-brand .Price-int",
-            "pc garage", ".price_num",
-            "flanco", ".price",
-            "mediagalaxy", ".text-red-brand .Price-int"
-//            "evomag", ".pret_rons",
-//            "itgalaxy", ".price-value",
-//            "vexio", ".price-value",
-//            "cel", ".product-price",
-//            "domo", ".product-price"
-    );
+    static {
+        // emag
+        STORES.put("emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"));
+        STORE_SELECTORS.put("emag", "p.product-new-price");
+
+        // aletx media galaxy
+        STORES.put("altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a[href*='/cpd/']"));
+        STORE_SELECTORS.put("altex", "div.Price-current");
+
+        STORES.put("mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a[href*='/cpd/']"));
+        STORE_SELECTORS.put("mediagalaxy", "div.Price-current");
+
+        // pcgarage
+        STORES.put("pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.pb-name a, div.product_box_name a"));
+        STORE_SELECTORS.put("pc garage", "p.price");
+
+        // flanco
+        STORES.put("flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"));
+        STORE_SELECTORS.put("flanco", "span.special-price span.price, span.price-wrapper span.price");
+    }
 
     private Double parsePriceText(String priceText) {
         try {
@@ -77,6 +83,9 @@ public class ScraperBean {
         }
     }
 
+    @Schedule(hour = "*/2", minute = "0", persistent = false)
+    // hour = "*" pentru verificare la fiecare ora fixa
+    // persistent = false - nu recupereaza verificarile perdute
     public void scrapeAllProducts() {
         LOG.info("start verificare preturi globale");
 
@@ -158,14 +167,21 @@ public class ScraperBean {
     }
 
     public void searchAndAddNewProduct(String productName) {
+        LOG.info("Incepere cautare automata pentru: " + productName);
+
+        // cream produsul de baza cu numele temporar
         Products newProduct = new Products();
         newProduct.setName(productName);
         newProduct.setImage_url("");
-        newProduct.setAll_time_low(Double.MAX_VALUE);
+        newProduct.setCurrent_price(999999.99);
+        newProduct.setAll_time_low(999999.99);
         em.persist(newProduct);
         em.flush();
 
         String encodedProductName = URLEncoder.encode(productName, StandardCharsets.UTF_8);
+        Double lowestFoundPrice = 999999.99;
+        String firstFoundImage = "";
+        boolean isNameUpdated = false; // luam h1 o singura data
 
         try (Playwright playwright = Playwright.create();
              Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))) {
@@ -181,28 +197,93 @@ public class ScraperBean {
                     String searchUrl = String.format(config.searchUrlFormat, encodedProductName);
 
                     try (Page page = context.newPage()) {
+                        // cautam produsul
                         page.navigate(searchUrl);
-                        page.waitForSelector(config.firstResultSelector, new Page.WaitForSelectorOptions().setTimeout(10000));
+                        page.waitForSelector(config.firstResultSelector, new Page.WaitForSelectorOptions().setTimeout(15000));
                         String extractedUrl = page.locator(config.firstResultSelector).first().getAttribute("href");
 
                         if (extractedUrl != null && !extractedUrl.isEmpty()) {
                             if (extractedUrl.startsWith("/")) {
                                 if (storeName.equals("altex")) extractedUrl = "https://altex.ro" + extractedUrl;
+                                else if (storeName.equals("mediagalaxy")) extractedUrl = "https://mediagalaxy.ro" + extractedUrl;
                             }
 
-                            ProductLink link = new ProductLink();
-                            link.setProduct(newProduct);
-                            link.setStoreName(storeName);
-                            link.setUrl(extractedUrl);
-                            em.persist(link);
+                            // intram pe link ul gasit pentru a lua pretul si detaliile
+                            String priceSelector = STORE_SELECTORS.get(storeName);
+                            if (priceSelector != null) {
+                                page.navigate(extractedUrl);
+                                page.waitForSelector(priceSelector, new Page.WaitForSelectorOptions().setTimeout(15000));
+
+                                String priceText = page.locator(priceSelector).first().innerText();
+                                Double price = parsePriceText(priceText);
+
+                                if (price != null) {
+                                    // extragem h1 de pe pagina produsului (daca nu l-am extras deja)
+                                    if (!isNameUpdated) {
+                                        try {
+                                            if (page.locator("h1").count() > 0) {
+                                                String h1Name = page.locator("h1").first().innerText().trim();
+                                                newProduct.setName(h1Name);
+                                                isNameUpdated = true;
+                                            }
+                                        } catch (Exception e) {
+                                            LOG.warning("Nu am putut extrage H1 de pe " + storeName);
+                                        }
+                                    }
+
+                                    // salvam imaginea
+                                    if (firstFoundImage.isEmpty()) {
+                                        try {
+                                            Locator imgLocator = page.locator("meta[property='og:image']");
+                                            if (imgLocator.count() > 0) {
+                                                firstFoundImage = imgLocator.first().getAttribute("content");
+                                            }
+                                        } catch (Exception e) {
+                                            LOG.warning("Nu am putut extrage imaginea de pe " + storeName);
+                                        }
+                                    }
+
+                                    // determinam cel mai mic pret
+                                    if (price < lowestFoundPrice) {
+                                        lowestFoundPrice = price;
+                                    }
+
+                                    // salvam link ul magazinului
+                                    ProductLink link = new ProductLink();
+                                    link.setProduct(newProduct);
+                                    link.setStoreName(storeName);
+                                    link.setUrl(extractedUrl);
+                                    link.setLastPrice(price);
+                                    link.setLastChecked(LocalDateTime.now());
+                                    em.persist(link);
+
+                                    // salvam istoricul
+                                    PriceHistory history = new PriceHistory();
+                                    history.setProductLink(link);
+                                    history.setPrice(price);
+                                    history.setRecordedAt(LocalDateTime.now());
+                                    em.persist(history);
+                                }
+                            }
                         }
                     } catch (Exception e) {
-                        LOG.warning("eroare cautare " + storeName + " pt produs: " + productName);
+                        // e.getMessage() VEDEM EXACT DE CE PICA
+                        LOG.warning("Eroare pe " + storeName + " pt produs: " + productName + ". Motiv: " + e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "eroare cautare automata playwright", e);
+            LOG.log(Level.SEVERE, "Eroare initializare Playwright in cautare automata", e);
+        }
+
+        // update in baza de date
+        if (lowestFoundPrice < 999999.99) {
+            newProduct.setCurrent_price(lowestFoundPrice);
+            newProduct.setAll_time_low(lowestFoundPrice);
+            if (!firstFoundImage.isEmpty()) {
+                newProduct.setImage_url(firstFoundImage);
+            }
+            em.merge(newProduct);
         }
     }
 

@@ -1,7 +1,6 @@
 package com.pricewatch.pricewatch.servlets;
 
 import com.pricewatch.pricewatch.ejb.ScraperBean;
-import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(name = "AddProductAction", value = "/add-product-action")
+@WebServlet(name = "AddProductAction", value = "/AddProductAction")
 public class AddProductAction extends HttpServlet {
 
     @Inject
@@ -21,21 +20,41 @@ public class AddProductAction extends HttpServlet {
 
         // preluam datele trimise din formular
         String action = request.getParameter("action");
-        String storeName = request.getParameter("storeName");
 
-        // verificam care din cele doua formulare a fost apasat
         if ("manual".equals(action)) {
             String productUrl = request.getParameter("productUrl");
 
             if (productUrl != null && !productUrl.isEmpty()) {
-                scraperBean.addProductFromUrl(productUrl, storeName);
+                // detectarea magazin automat
+                String autoDetectedStore = detectStoreFromUrl(productUrl);
+
+                if (autoDetectedStore != null) {
+                    scraperBean.addProductFromUrl(productUrl, autoDetectedStore);
+                } else {
+                    System.out.println("Magazin necunoscut sau nesuportat pentru URL-ul: " + productUrl);
+                }
             }
             response.sendRedirect(request.getContextPath() + "/Products");
+
         } else if ("search".equals(action)) {
-            // cautarea automata dupa nume pe viitor
             String productName = request.getParameter("productName");
-            // scraperBean.searchAndAddNewProduct(productName);
+            scraperBean.searchAndAddNewProduct(productName);
             response.sendRedirect(request.getContextPath() + "/Products");
         }
+    }
+
+    // functie pentru detectarea magazinului
+    private String detectStoreFromUrl(String url) {
+        if (url == null) return null;
+
+        String lowerUrl = url.toLowerCase();
+
+        if (lowerUrl.contains("emag.ro")) return "emag";
+        if (lowerUrl.contains("altex.ro")) return "altex";
+        if (lowerUrl.contains("pcgarage.ro")) return "pc garage";
+        if (lowerUrl.contains("flanco.ro")) return "flanco";
+        if (lowerUrl.contains("mediagalaxy.ro")) return "mediagalaxy";
+
+        return null;
     }
 }
