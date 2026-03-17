@@ -20,8 +20,6 @@ public class UsersBean {
 
     public List<UserDto> findAllUsers() {
         LOG.info("Se extrag toti userii din baza de date");
-
-        // Folosim clasa User (Entitatea), nu Users (Servletul)
         TypedQuery<Users> query = entityManager.createQuery("SELECT u FROM Users u", Users.class);
         List<Users> usersEntities = query.getResultList();
 
@@ -29,7 +27,7 @@ public class UsersBean {
 
         for (Users entity : usersEntities) {
             UserDto dto = new UserDto(
-                    entity.getId(),      // Acum va funcționa, deoarece User are aceste metode
+                    entity.getId(),
                     entity.getUsername(),
                     entity.getEmail(),
                     entity.getRole() != null ? entity.getRole().getRoleName() : "Unknown"
@@ -37,6 +35,14 @@ public class UsersBean {
             usersDtoList.add(dto);
         }
         return usersDtoList;
+    }
+
+    public void deleteUser(Long userId) {
+        LOG.info("Se sterge utilizatorul cu ID-ul: " + userId);
+        Users user = entityManager.find(Users.class, userId);
+        if (user != null) {
+            entityManager.remove(user);
+        }
     }
 
 }

@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-
 <t:pageTemplate pageTitle="About Us">
     <div class="max-w-4xl mx-auto space-y-12 py-8">
         <div class="text-center space-y-4">

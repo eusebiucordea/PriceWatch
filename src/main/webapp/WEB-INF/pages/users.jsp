@@ -45,9 +45,12 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end">
                                 <c:if test="${user.role != 'Admin'}">
-                                    <button title="Delete User" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                        <i data-lucide="trash-2" class="w-5 h-5">Delete</i>
-                                    </button>
+                                    <form action="${pageContext.request.contextPath}/DeleteUser" method="POST" class="inline-block m-0" onsubmit="return confirm('Esti sigur ca vrei sa stergi acest utilizator?');">
+                                        <input type="hidden" name="id" value="${user.id}">
+                                        <button type="submit" title="Delete User" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                                            <i data-lucide="trash-2" class="w-5 h-5">Delete</i>
+                                        </button>
+                                    </form>
                                 </c:if>
                             </div>
                         </td>
