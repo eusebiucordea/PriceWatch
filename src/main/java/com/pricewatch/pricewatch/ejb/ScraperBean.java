@@ -37,30 +37,46 @@ public class ScraperBean {
         }
     }
 
-    // declaram harțile ca fiind goale, dar gata sa primească date hashmap
-    private static final Map<String, StoreConfig> STORES = new HashMap<>();
-    private static final Map<String, String> STORE_SELECTORS = new HashMap<>();
+    private static final Map<String, StoreConfig> STORES = Map.of(
+            "emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"),
+            "altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a.Product-link"),
+            "pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.product_box_name a"),
+            "flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"),
+            "mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a.Product-link")
+    );
 
-    static {
-        // emag
-        STORES.put("emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"));
-        STORE_SELECTORS.put("emag", "p.product-new-price");
+    private static final Map<String, String> STORE_SELECTORS = Map.of(
+            "emag", "p.product-new-price",
+            "altex", ".text-red-brand .Price-int",
+            "pc garage", ".price_num",
+            "flanco", ".price",
+            "mediagalaxy", ".text-red-brand .Price-int"
+    );
 
-        // aletx media galaxy
-        STORES.put("altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a[href*='/cpd/']"));
-        STORE_SELECTORS.put("altex", "div.Price-current");
-
-        STORES.put("mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a[href*='/cpd/']"));
-        STORE_SELECTORS.put("mediagalaxy", "div.Price-current");
-
-        // pcgarage
-        STORES.put("pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.pb-name a, div.product_box_name a"));
-        STORE_SELECTORS.put("pc garage", "p.price");
-
-        // flanco
-        STORES.put("flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"));
-        STORE_SELECTORS.put("flanco", "span.special-price span.price, span.price-wrapper span.price");
-    }
+//    // declaram hartile ca fiind goale, dar gata sa primească date hashmap
+//    private static final Map<String, StoreConfig> STORES = new HashMap<>();
+//    private static final Map<String, String> STORE_SELECTORS = new HashMap<>();
+//
+//    static {
+//        // emag
+//        STORES.put("emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"));
+//        STORE_SELECTORS.put("emag", "p.product-new-price");
+//
+//        // aletx media galaxy
+//        STORES.put("altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a[href*='/cpd/']"));
+//        STORE_SELECTORS.put("altex", "div.Price-current");
+//
+//        STORES.put("mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a[href*='/cpd/']"));
+//        STORE_SELECTORS.put("mediagalaxy", "div.Price-current");
+//
+//        // pcgarage
+//        STORES.put("pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.pb-name a, div.product_box_name a"));
+//        STORE_SELECTORS.put("pc garage", "p.price");
+//
+//        // flanco
+//        STORES.put("flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"));
+//        STORE_SELECTORS.put("flanco", "span.special-price span.price, span.price-wrapper span.price");
+//    }
 
     private Double parsePriceText(String priceText) {
         try {
@@ -287,6 +303,67 @@ public class ScraperBean {
         }
     }
 
+    // functia care calculeaza cat de mult se aseamana doua nume (returneaza intre 0.0 si 1.0)
+    private double calculateSimilarity(String name1, String name2) {
+        if (name1 == null || name2 == null) return 0.0;
+
+        // curatam caracterele speciale si facem litere mici
+        String clean1 = name1.toLowerCase().replaceAll("[^a-z0-9\\s]", " ");
+        String clean2 = name2.toLowerCase().replaceAll("[^a-z0-9\\s]", " ");
+
+        // impartim propozitia intr-o lista de cuvinte unice
+        java.util.Set<String> words1 = new java.util.HashSet<>(java.util.Arrays.asList(clean1.split("\\s+")));
+        java.util.Set<String> words2 = new java.util.HashSet<>(java.util.Arrays.asList(clean2.split("\\s+")));
+
+        // eliminam cuvintele care nu ne ajuta sa identificam unicitatea produsului
+        java.util.Set<String> stopWords = new java.util.HashSet<>(java.util.Arrays.asList(
+                "telefon", "mobil", "smartphone", "smart", "tv", "televizor", "laptop", "gaming"
+        ));
+        words1.removeAll(stopWords);
+        words2.removeAll(stopWords);
+
+        // eliminam spatiile goale ramase accidental
+        words1.remove("");
+        words2.remove("");
+
+        if (words1.isEmpty() || words2.isEmpty()) return 0.0;
+
+        // vedem cate cuvinte au in comun
+        java.util.Set<String> intersection = new java.util.HashSet<>(words1);
+        intersection.retainAll(words2);
+
+        // calculam procentajul (ne raportam la titlul mai scurt pentru a nu fi penalizati de magazinele care scriu romane in titlu)
+        int minSize = Math.min(words1.size(), words2.size());
+        if (minSize == 0) return 0.0;
+
+        return (double) intersection.size() / minSize;
+    }
+
+    // functia care cauta in toata baza de date produsul cel mai asemanator
+    private Products findBestMatchingProduct(String newProductName) {
+        List<Products> allProducts = em.createQuery("SELECT p FROM Products p", Products.class).getResultList();
+
+        Products bestMatch = null;
+        double highestScore = 0.0;
+
+        for (Products product : allProducts) {
+            double currentScore = calculateSimilarity(newProductName, product.getName());
+
+            // daca scorul e mai mare decat ce am gasit pana acum il tinem minte
+            if (currentScore > highestScore) {
+                highestScore = currentScore;
+                bestMatch = product;
+            }
+        }
+
+        // setam pragul de acceptare la 80% daca se potrivesc cel putin 80% e acelasi produs
+        if (highestScore >= 0.8) {
+            LOG.info("Am gasit o potrivire! '" + newProductName + "' se aseamana in proportie de " + (highestScore * 100) + "% cu '" + bestMatch.getName() + "'");
+            return bestMatch;
+        }
+        return null;
+    }
+
     public void addProductFromUrl(String url, String storeName) {
         storeName = storeName.toLowerCase().trim();
         String priceSelector = STORE_SELECTORS.get(storeName);
@@ -331,16 +408,35 @@ public class ScraperBean {
 
                 if (price == null) return;
 
-                Products newProduct = new Products();
-                newProduct.setName(productName);
-                newProduct.setImage_url(imageUrl);
-                newProduct.setCurrent_price(price);
-                newProduct.setAll_time_low(price);
-                em.persist(newProduct);
-                em.flush();
+                Products existingProduct = findBestMatchingProduct(productName);
 
+                Products targetProduct;
+
+                // daca l-am gasit (scor peste 80%) il folosim daca nu cream unul nou
+                if (existingProduct != null) {
+                    LOG.info("produsul exista deja in baza de date (potrivire gasita). adaugam doar link-ul.");
+                    targetProduct = existingProduct;
+
+                    // actualizam pretul cel mai mic la nivel de produs daca este cazul
+                    if (price < targetProduct.getAll_time_low()) {
+                        targetProduct.setAll_time_low(price);
+                        targetProduct.setCurrent_price(price);
+                        em.merge(targetProduct);
+                    }
+                } else {
+                    LOG.info("produs nou (nu am gasit nicio potrivire). il cream acum.");
+                    targetProduct = new Products();
+                    targetProduct.setName(productName);
+                    targetProduct.setImage_url(imageUrl);
+                    targetProduct.setCurrent_price(price);
+                    targetProduct.setAll_time_low(price);
+                    em.persist(targetProduct);
+                    em.flush();
+                }
+
+                // salvam link-ul magazinului si il legam de produs (vechi sau nou)
                 ProductLink link = new ProductLink();
-                link.setProduct(newProduct);
+                link.setProduct(targetProduct);
                 link.setStoreName(storeName);
                 link.setUrl(url);
                 link.setLastPrice(price);
@@ -348,6 +444,7 @@ public class ScraperBean {
                 em.persist(link);
                 em.flush();
 
+                // salvam istoricul de pret pentru acest link
                 PriceHistory history = new PriceHistory();
                 history.setProductLink(link);
                 history.setPrice(price);

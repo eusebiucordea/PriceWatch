@@ -1,6 +1,9 @@
 package com.pricewatch.pricewatch.ejb;
 
 import com.pricewatch.pricewatch.common.ProductDto;
+import com.pricewatch.pricewatch.common.ProductHistoryDto;
+import com.pricewatch.pricewatch.common.ProductLinkDto;
+import com.pricewatch.pricewatch.entities.ProductLink;
 import com.pricewatch.pricewatch.entities.Products;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -43,15 +46,62 @@ public class ProductsBean {
     }
 
     public ProductDto findById(Long id) {
+        // cautam produsul principal
         Products entity = entityManager.find(Products.class, id);
+
         if (entity != null) {
-            return new ProductDto(
+            // cream dto ul produsului
+            ProductDto productDto = new ProductDto(
                     entity.getId(),
                     entity.getName(),
                     entity.getImage_url(),
                     entity.getAll_time_low(),
                     entity.getCurrent_price()
             );
+
+            // extragem link urile asociate acestui produs
+            List<com.pricewatch.pricewatch.entities.ProductLink> linkEntities = entityManager.createQuery(
+                            "SELECT pl FROM ProductLink pl WHERE pl.product.id = :prodId", com.pricewatch.pricewatch.entities.ProductLink.class)
+                    .setParameter("prodId", id)
+                    .getResultList();
+
+            List<ProductLinkDto> linkDtos = new ArrayList<>();
+
+            for (com.pricewatch.pricewatch.entities.ProductLink linkEntity : linkEntities) {
+                // cream dto ul pentru link
+                ProductLinkDto linkDto = new ProductLinkDto(
+                        linkEntity.getId(),
+                        linkEntity.getStoreName(),
+                        linkEntity.getUrl(),
+                        linkEntity.getLastPrice(),
+                        linkEntity.getLastChecked()
+                );
+
+                // extragem istoricul de preturi pentru acest link
+                List<com.pricewatch.pricewatch.entities.PriceHistory> historyEntities = entityManager.createQuery(
+                                "SELECT ph FROM PriceHistory ph WHERE ph.productLink.id = :linkId ORDER BY ph.recordedAt ASC", com.pricewatch.pricewatch.entities.PriceHistory.class)
+                        .setParameter("linkId", linkEntity.getId())
+                        .getResultList();
+
+                List<ProductHistoryDto> historyDtos = new ArrayList<>();
+                for (com.pricewatch.pricewatch.entities.PriceHistory histEntity : historyEntities) {
+                    // cream dto ul pentru istoric
+                    historyDtos.add(new ProductHistoryDto(
+                            histEntity.getId(),
+                            histEntity.getPrice(),
+                            histEntity.getRecordedAt()
+                    ));
+                }
+
+                // punem istoricul in link apoi link ul in lista finala
+                linkDto.setPriceHistories(historyDtos);
+                linkDtos.add(linkDto);
+            }
+
+            // atașam lista de link uri la produsul nostru final
+            productDto.setLinks(linkDtos);
+
+            return productDto;
         }
         return null;
     }

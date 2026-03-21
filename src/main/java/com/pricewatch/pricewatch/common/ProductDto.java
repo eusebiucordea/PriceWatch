@@ -1,5 +1,7 @@
 package com.pricewatch.pricewatch.common;
 
+import java.util.List;
+
 public class ProductDto {
     private Long id;
     private String name;
@@ -53,5 +55,15 @@ public class ProductDto {
 
     public void setCurrent_price(Double current_price) {
         this.current_price = current_price;
+    }
+
+    private List<ProductLinkDto> links;
+
+    public List<ProductLinkDto> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<ProductLinkDto> links) {
+        this.links = links;
     }
 }

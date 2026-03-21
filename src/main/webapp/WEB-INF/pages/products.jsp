@@ -53,7 +53,7 @@
 
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end items-center">
-                                <a title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
+                                <a href="${pageContext.request.contextPath}/ViewDetails?id=${product.id}" title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
                                     <i data-lucide="info" class="w-5 h-5">View Details</i>
                                 </a>
                                 <a href="${pageContext.request.contextPath}/EditProduct?id=${product.id}" title="Edit" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all inline-block">
