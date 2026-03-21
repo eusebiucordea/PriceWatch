@@ -154,7 +154,7 @@
             <div class="grid">
                 <div class="card">
                     <h3>Automatic Search</h3>
-                    <form action="AddProductAction" method="POST">
+                    <form action="AddProduct" method="POST">
                         <input type="hidden" name="action" value="search">
                         <div class="form-group">
                             <label>Product Name</label>
@@ -166,7 +166,7 @@
 
                 <div class="card">
                     <h3>Direct Link</h3>
-                    <form action="AddProductAction" method="POST">
+                    <form action="AddProduct" method="POST">
                         <input type="hidden" name="action" value="manual">
                         <div class="form-group">
                             <label>Product URL</label>
