@@ -131,5 +131,4 @@ function updateChart() {
     priceChart.update();
 }
 
-// Pornim totul când fereastra s-a încărcat
 window.onload = init;
