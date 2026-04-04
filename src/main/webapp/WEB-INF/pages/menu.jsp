@@ -1,4 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <header>
@@ -46,10 +48,20 @@
                 <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
             </button>
 
-            <a href="${pageContext.request.contextPath}/Login"
-               class="nav-link-custom text-sm font-semibold transition-colors text-slate-500 hover:text-slate-800 no-underline">
-                Login
-            </a>
+        <c:choose>
+            <c:when test="${pageContext.request.getRemoteUser() == null}">
+                <a href="${pageContext.request.contextPath}/Login"
+                   class="nav-link-custom text-sm font-semibold transition-colors text-slate-500 hover:text-slate-800 no-underline">
+                    Login
+                </a>
+            </c:when>
+            <c:otherwise>
+                <a href="${pageContext.request.contextPath}/Logout"
+                   class="nav-link-custom text-sm font-semibold transition-colors text-slate-500 hover:text-slate-800 no-underline">
+                    Logout
+                </a>
+            </c:otherwise>
+        </c:choose>
         </div>
     </nav>
 

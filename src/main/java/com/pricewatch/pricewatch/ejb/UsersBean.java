@@ -30,7 +30,7 @@ public class UsersBean {
                     entity.getId(),
                     entity.getUsername(),
                     entity.getEmail(),
-                    entity.getRole() != null ? entity.getRole().getRoleName() : "Unknown"
+                    entity.getRole() != null ? entity.getRole().getroleName() : "Unknown"
             );
             usersDtoList.add(dto);
         }

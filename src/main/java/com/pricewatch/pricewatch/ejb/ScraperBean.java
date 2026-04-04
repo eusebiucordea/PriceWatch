@@ -99,7 +99,7 @@ public class ScraperBean {
         }
     }
 
-    @Schedule(hour = "*/1", minute = "*", persistent = false)
+    @Schedule(hour = "*/2", minute = "0", persistent = false)
     // hour = "*" pentru verificare la fiecare ora fixa
     // persistent = false - nu recupereaza verificarile perdute
     // "*/5" verifica daca se imaprte la 5 spre exemplu, minute = "*/5" verifica daca 12:11 se imparte la 5, nu se imparte doar cand este 12:15

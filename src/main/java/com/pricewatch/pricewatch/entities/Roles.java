@@ -14,17 +14,17 @@ public class Roles {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "roleName", nullable = false, unique = true)
+    @Column(name = "roleName", nullable = false)
     private String roleName; // admin/user
 
     @Column(name = "username")
     private String username;
 
-    public String getRoleName() {
+    public String getroleName() {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
+    public void setroleName(String roleName) {
         this.roleName = roleName;
     }
 
