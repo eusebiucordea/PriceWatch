@@ -37,46 +37,46 @@ public class ScraperBean {
         }
     }
 
-    private static final Map<String, StoreConfig> STORES = Map.of(
-            "emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"),
-            "altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a.Product-link"),
-            "pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.product_box_name a"),
-            "flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"),
-            "mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a.Product-link")
-    );
+//    private static final Map<String, StoreConfig> STORES = Map.of(
+//            "emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"),
+//            "altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a.Product-link"),
+//            "pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.product_box_name a"),
+//            "flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"),
+//            "mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a.Product-link")
+//    );
+//
+//    private static final Map<String, String> STORE_SELECTORS = Map.of(
+//            "emag", "p.product-new-price",
+//            "altex", ".text-red-brand .Price-int",
+//            "pc garage", ".price_num",
+//            "flanco", ".price",
+//            "mediagalaxy", ".text-red-brand .Price-int"
+//    );
 
-    private static final Map<String, String> STORE_SELECTORS = Map.of(
-            "emag", "p.product-new-price",
-            "altex", ".text-red-brand .Price-int",
-            "pc garage", ".price_num",
-            "flanco", ".price",
-            "mediagalaxy", ".text-red-brand .Price-int"
-    );
+    // declaram hartile ca fiind goale, dar gata sa primească date hashmap
+    private static final Map<String, StoreConfig> STORES = new HashMap<>();
+    private static final Map<String, String> STORE_SELECTORS = new HashMap<>();
 
-//    // declaram hartile ca fiind goale, dar gata sa primească date hashmap
-//    private static final Map<String, StoreConfig> STORES = new HashMap<>();
-//    private static final Map<String, String> STORE_SELECTORS = new HashMap<>();
-//
-//    static {
-//        // emag
-//        STORES.put("emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"));
-//        STORE_SELECTORS.put("emag", "p.product-new-price");
-//
-//        // aletx media galaxy
-//        STORES.put("altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a[href*='/cpd/']"));
-//        STORE_SELECTORS.put("altex", "div.Price-current");
-//
-//        STORES.put("mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a[href*='/cpd/']"));
-//        STORE_SELECTORS.put("mediagalaxy", "div.Price-current");
-//
-//        // pcgarage
-//        STORES.put("pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.pb-name a, div.product_box_name a"));
-//        STORE_SELECTORS.put("pc garage", "p.price");
-//
-//        // flanco
-//        STORES.put("flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"));
-//        STORE_SELECTORS.put("flanco", "span.special-price span.price, span.price-wrapper span.price");
-//    }
+    static {
+        // emag
+        STORES.put("emag", new StoreConfig("https://www.emag.ro/search/%s", "a.card-v2-title"));
+        STORE_SELECTORS.put("emag", "p.product-new-price");
+
+        // aletx media galaxy
+        STORES.put("altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a[href*='/cpd/']"));
+        STORE_SELECTORS.put("altex", "div.Price-current");
+
+        STORES.put("mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a[href*='/cpd/']"));
+        STORE_SELECTORS.put("mediagalaxy", "div.Price-current");
+
+        // pcgarage
+        STORES.put("pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.pb-name a, div.product_box_name a"));
+        STORE_SELECTORS.put("pc garage", "p.price");
+
+        // flanco
+        STORES.put("flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"));
+        STORE_SELECTORS.put("flanco", "span.special-price span.price, span.price-wrapper span.price");
+    }
 
     private Double parsePriceText(String priceText) {
         try {
@@ -99,9 +99,10 @@ public class ScraperBean {
         }
     }
 
-    @Schedule(hour = "*/2", minute = "0", persistent = false)
+    @Schedule(hour = "*/1", minute = "*", persistent = false)
     // hour = "*" pentru verificare la fiecare ora fixa
     // persistent = false - nu recupereaza verificarile perdute
+    // "*/5" verifica daca se imaprte la 5 spre exemplu, minute = "*/5" verifica daca 12:11 se imparte la 5, nu se imparte doar cand este 12:15
     public void scrapeAllProducts() {
         LOG.info("start verificare preturi globale");
 
@@ -283,7 +284,6 @@ public class ScraperBean {
                             }
                         }
                     } catch (Exception e) {
-                        // e.getMessage() VEDEM EXACT DE CE PICA
                         LOG.warning("Eroare pe " + storeName + " pt produs: " + productName + ". Motiv: " + e.getMessage());
                     }
                 }
@@ -356,8 +356,8 @@ public class ScraperBean {
             }
         }
 
-        // setam pragul de acceptare la 80% daca se potrivesc cel putin 80% e acelasi produs
-        if (highestScore >= 0.8) {
+        // setam pragul de acceptare la 95% daca se potrivesc cel putin 95% e acelasi produs
+        if (highestScore >= 0.95) {
             LOG.info("Am gasit o potrivire! '" + newProductName + "' se aseamana in proportie de " + (highestScore * 100) + "% cu '" + bestMatch.getName() + "'");
             return bestMatch;
         }
