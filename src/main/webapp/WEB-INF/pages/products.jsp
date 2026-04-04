@@ -2,14 +2,24 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<t:pageTemplate pageTitle="Product Management">
+<t:pageTemplate pageTitle="Products">
     <header class="mb-8">
-        <h1 class="text-3xl font-extrabold text-slate-900">Product Management</h1>
+        <h1 class="text-3xl font-extrabold text-slate-900">All Tracked Products</h1>
     </header>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between ">
-            <h3 class="text-lg font-bold text-slate-800">Tracked Products</h3>
+            <h3 class="text-lg font-bold text-slate-800">Products</h3>
+
+            <div class="relative flex-1 max-w-md w-full">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+                </div>
+                <input type="text" id="searchInput" onkeyup="filterProducts()"
+                       class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
+                       placeholder="Caută produs după nume...">
+            </div>
+
             <a href="${pageContext.request.contextPath}/AddProduct"
                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center  hover:bg-blue-700 transition-colors">
                  Add Product
@@ -95,5 +105,36 @@
             </table>
         </div>
     </div>
+
+
+    <script>
+        //searchbar
+        function filterProducts() {
+            // preluam valoarea din input si o transformam in litere mici
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+
+            // selectam toate randurile din corpul tabelului
+            const tbody = document.querySelector("table tbody");
+            const rows = tbody.getElementsByTagName("tr");
+
+            // trecem prin fiecare rand pentru a verifica numele produsului
+            for (let i = 0; i < rows.length; i++) {
+                // coloana cu numele produsului este a doua coloana index 1
+                const nameColumn = rows[i].getElementsByTagName("td")[1];
+
+                if (nameColumn) {
+                    const productName = nameColumn.textContent || nameColumn.innerText;
+
+                    // verificam daca numele contine textul cautat
+                    if (productName.toLowerCase().indexOf(filter) > -1) {
+                        rows[i].style.display = ""; // afiseaza randul
+                    } else {
+                        rows[i].style.display = "none"; // ascunde randul
+                    }
+                }
+            }
+        }
+    </script>
     <script src="${pageContext.request.contextPath}/scripts/dashboard.js"></script>
 </t:pageTemplate>
