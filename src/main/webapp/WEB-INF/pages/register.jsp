@@ -2,9 +2,9 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<t:pageTemplate pageTitle="Login">
+<t:pageTemplate pageTitle="Register">
     <style>
-        .login-card {
+        .register-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 1.25rem;
@@ -47,67 +47,80 @@
     </style>
 
     <div class="min-h-[80vh] flex flex-col">
+
         <!-- Main Content -->
         <main class="flex-grow flex items-center justify-center px-4">
-            <div class="login-card w-full max-w-md p-10 shadow-sm fade-in">
+            <div class="register-card w-full max-w-md p-10 shadow-sm fade-in">
                 <div class="text-center mb-10">
-                    <h1 class="text-2xl font-bold text-slate-900">Welcome to PriceWatch</h1>
-                    <p class="text-slate-500 mt-2 text-sm">Please enter your details to access your dashboard.</p>
+                    <h1 class="text-2xl font-bold text-slate-900">Create your account</h1>
+                    <p class="text-slate-500 mt-2 text-sm">Join PriceWatch today and start tracking prices.</p>
                 </div>
 
-                <c:if test="${not empty message}">
-                    <div class="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg text-center mb-6 font-semibold">
-                            ${message}
-                    </div>
-                </c:if>
+                <!-- Action targets your registration servlet -->
+                <form action="${pageContext.request.contextPath}/Register" method="POST" class="space-y-6">
 
-                <!-- Action targets your login servlet or controller -->
-                <form action="j_security_check" method="POST" class="space-y-6">
+                    <!-- Username -->
                     <div>
-                        <label for="j_username" class="block text-sm font-semibold text-slate-700 mb-2">Username</label>
+                        <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">Username</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                                <i class="far fa-user"></i>
+                            </span>
+                            <input type="text" id="username" name="username" required
+                                   class="pw-input w-full pl-11 pr-4 py-3 rounded-xl text-sm"
+                                   placeholder="alex123">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
                                 <i class="far fa-envelope"></i>
                             </span>
-                            <input type="text" id="j_username" name="j_username" required
+                            <input type="email" id="email" name="email" required
                                    class="pw-input w-full pl-11 pr-4 py-3 rounded-xl text-sm"
-                                   placeholder="username">
+                                   placeholder="example@mail.com">
                         </div>
                     </div>
 
+                    <!-- Password -->
                     <div>
-                        <div class="flex justify-between mb-2">
-                            <label for="j_password" class="text-sm font-semibold text-slate-700">Password</label>
-                            <a href="#" class="text-xs font-medium text-blue-600 hover:text-blue-700">Forgot password?</a>
-                        </div>
+                        <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
                                 <i class="fas fa-lock"></i>
                             </span>
-                            <input type="password" id="j_password" name="j_password" required
+                            <input type="password" id="password" name="password" required
                                    class="pw-input w-full pl-11 pr-12 py-3 rounded-xl text-sm"
                                    placeholder="••••••••">
-                            <button type="button" onclick="const p = document.getElementById('j_password'); p.type = p.type === 'password' ? 'text' : 'password';"
+                            <button type="button" onclick="const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password';"
                                     class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600">
                                 <i class="far fa-eye"></i>
                             </button>
                         </div>
+                        <p class="mt-2 text-[11px] text-slate-400 font-medium italic">Must be at least 8 characters long.</p>
                     </div>
 
-                    <div class="flex items-center">
-                        <input type="checkbox" id="remember" name="remember" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
-                        <label for="remember" class="ml-2 block text-sm text-slate-600">Remember me</label>
+                    <!-- Terms checkbox -->
+                    <div class="flex items-start">
+                        <input type="checkbox" id="terms" name="terms" required class="mt-1 w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
+                        <label for="terms" class="ml-2 block text-sm text-slate-600 leading-tight">
+                            I agree to the <a href="#" class="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.
+                        </label>
                     </div>
 
+                    <!-- Register Button -->
                     <button type="submit" class="btn-primary w-full text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200">
-                        Sign In
+                        Create Account
                     </button>
                 </form>
 
                 <div class="mt-8 text-center">
                     <p class="text-sm text-slate-500">
-                        Don't have an account?
-                        <a href="${pageContext.request.contextPath}/Register" class="text-blue-600 font-bold hover:underline">Sign up now</a>
+                        Already have an account?
+                        <a href="${pageContext.request.contextPath}/Login" class="text-blue-600 font-bold hover:underline">Sign in</a>
                     </p>
                 </div>
             </div>

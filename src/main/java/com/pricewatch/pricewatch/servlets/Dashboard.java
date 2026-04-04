@@ -2,6 +2,7 @@ package com.pricewatch.pricewatch.servlets;
 
 import com.pricewatch.pricewatch.common.ProductDto;
 import com.pricewatch.pricewatch.ejb.ScraperBean;
+import com.pricewatch.pricewatch.ejb.UsersBean;
 import com.pricewatch.pricewatch.ejb.WatchlistBean;
 
 import jakarta.ejb.EJB;
@@ -22,17 +23,34 @@ public class Dashboard extends HttpServlet {
     @Inject
     private WatchlistBean watchlistBean;
 
+    @Inject
+    private UsersBean usersBean;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        // preia sesiunea curenta
-        HttpSession session = request.getSession();
+        String username = request.getRemoteUser();
 
-        // login temporar pentru testare
-        if (session.getAttribute("userId") == null) {
-            session.setAttribute("userId", 2);
+        if (username == null) {
+            response.sendRedirect(request.getContextPath() + "/Login");
+            return;
         }
+
+        HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
+
+        // verifica daca userid e null
+        if (userId == null) {
+            userId = usersBean.findUserIdByUsername(username);
+
+            if (userId != null) {
+                session.setAttribute("userId", userId);
+            } else {
+                // Ca masura de siguranta, daca ceva merge prost
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "User ID not found in database");
+                return;
+            }
+        }
 
         // redirectioneaza catre login daca utilizatorul nu este autentificat
         if (userId == null) {
@@ -57,11 +75,6 @@ public class Dashboard extends HttpServlet {
 
         try {
             HttpSession session = request.getSession();
-
-            // login temporar pentru testare
-            if (session.getAttribute("userId") == null) {
-                session.setAttribute("userId", 2);
-            }
             Integer userId = (Integer) session.getAttribute("userId");
 
             // returneaza eroare de neautorizare daca utilizatorul nu este logat
