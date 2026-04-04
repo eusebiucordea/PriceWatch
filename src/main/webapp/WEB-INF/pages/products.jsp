@@ -53,6 +53,20 @@
 
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end items-center">
+                                <button onclick="toggleWatchlist(${product.id}, this, '${pageContext.request.contextPath}')"
+                                        title="Add to Watchlist"
+                                        class="p-1.5 transition-all inline-block m-0">
+
+                                    <c:choose>
+                                        <c:when test="${savedProductIds.contains(product.id)}">
+                                            <i data-lucide="heart" class="w-5 h-5 text-red-500" fill="currentColor"></i>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <i data-lucide="heart" class="w-5 h-5 text-slate-400" fill="none"></i>
+                                        </c:otherwise>
+                                    </c:choose>
+
+                                </button>
                                 <a href="${pageContext.request.contextPath}/ViewDetails?id=${product.id}" title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
                                     <i data-lucide="info" class="w-5 h-5">View Details</i>
                                 </a>
@@ -81,4 +95,5 @@
             </table>
         </div>
     </div>
+    <script src="${pageContext.request.contextPath}/scripts/dashboard.js"></script>
 </t:pageTemplate>

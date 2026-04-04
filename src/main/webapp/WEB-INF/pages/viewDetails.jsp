@@ -23,9 +23,9 @@
 
     <main class="max-w-6xl mx-auto px-4 mt-8 pb-12">
 
-        <a href="${pageContext.request.contextPath}/Products" class="mb-6 inline-flex items-center text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">
-            <i class="fas fa-arrow-left mr-2"></i> Back to list
-        </a>
+<%--        <a href="${pageContext.request.contextPath}/Products" class="mb-6 inline-flex items-center text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">--%>
+<%--            <i class="fas fa-arrow-left mr-2"></i> Back to list--%>
+<%--        </a>--%>
 
         <div id="main-view">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
