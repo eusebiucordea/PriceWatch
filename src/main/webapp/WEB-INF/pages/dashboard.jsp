@@ -1,9 +1,116 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <t:pageTemplate pageTitle="Dashboard">
+
     <header class="mb-8">
-    <h1 class="text-3xl font-extrabold text-slate-900">Dashboard</h1>
+        <h1 class="text-3xl font-extrabold text-slate-900">My Dashboard</h1>
+        <p class="text-slate-500 mt-2">Welcome back! Here is an overview of the products you are tracking.</p>
     </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
+            <div>
+                <p class="text-sm font-medium text-slate-500">Tracked Products</p>
+                <p class="text-2xl font-bold text-slate-900">${not empty watchlist ? watchlist.size() : 0}</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
+            <div>
+                <p class="text-sm font-medium text-slate-500">Recently Dropped</p>
+                <p class="text-2xl font-bold text-slate-900">-</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
+            <div>
+                <p class="text-sm font-medium text-slate-500">At All-Time Low</p>
+                <p class="text-2xl font-bold text-slate-900">-</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+
+        <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-800">Watchlist</h3>
+            <a href="${pageContext.request.contextPath}/Products" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                Browse full catalog &rarr;
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
+                <tr>
+                    <th class="px-6 py-4">Product Name</th>
+                    <th class="px-6 py-4">Current Price</th>
+                    <th class="px-6 py-4">All-Time Low</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+
+                <c:forEach var="product" items="${watchlist}">
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-semibold text-slate-800 max-w-sm truncate" title="${product.name}">
+                                ${product.name}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-50 text-slate-700">
+                                ${product.current_price} RON
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-red-50 text-red-600">
+                                ${product.all_time_low} RON
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <c:choose>
+                                <c:when test="${product.current_price <= product.all_time_low}">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                                        <i data-lucide="trending-down" class="w-4 h-4 mr-1"></i> Lowest!
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
+                                        <i data-lucide="activity" class="w-4 h-4 mr-1"></i> Tracking
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex justify-end items-center gap-2">
+                                <a href="${pageContext.request.contextPath}/ViewDetails?id=${product.id}" title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
+                                    <i data-lucide="info" class="w-5 h-5"></i>
+                                </a>
+                                <button onclick="removeFromDashboard(${product.id}, '${pageContext.request.contextPath}')" title="Remove from Watchlist" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </c:forEach>
+
+                <c:if test="${empty watchlist}">
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">
+                            Your watchlist is currently empty. Start tracking products from the catalog!
+                        </td>
+                    </tr>
+                </c:if>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="${pageContext.request.contextPath}/scripts/dashboard.js"></script>
+
 </t:pageTemplate>
