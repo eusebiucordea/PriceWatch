@@ -1,7 +1,9 @@
 package com.pricewatch.pricewatch.ejb;
 
 import com.pricewatch.pricewatch.common.UserDto;
+import com.pricewatch.pricewatch.entities.Roles;
 import com.pricewatch.pricewatch.entities.Users;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -51,23 +53,85 @@ public class UsersBean {
         LOG.info("Searching ID for username: " + username);
 
         try {
-            // selectam doar id ul pentru eficienta si evitam erorile de conversie
-            TypedQuery<Number> query = entityManager.createQuery(
-                    "SELECT u.id FROM Users u WHERE u.username = :username", Number.class);
+            // extragem entitatea completa pentru a evita erorile de conversie
+            TypedQuery<Users> query = entityManager.createQuery(
+                    "SELECT u FROM Users u WHERE u.username = :username", Users.class);
             query.setParameter("username", username);
 
-            Number id = query.getSingleResult();
+            Users user = query.getSingleResult();
 
-            // convertim in integer pentru a se potrivi in sesiune
-            return id != null ? id.intValue() : null;
+            // luam id ul din entitate si il facem integer
+            return user.getId() != null ? user.getId().intValue() : null;
 
         } catch (NoResultException e) {
             LOG.warning("No user found with username: " + username);
             return null;
         } catch (Exception e) {
             LOG.severe("Error finding ID for user: " + username + " - " + e.getMessage());
+            // printam in consola linia exacta unde a picat in caz de probleme
+            e.printStackTrace();
             return null;
         }
     }
 
-}
+
+    @EJB
+    PasswordBean passwordBean;
+
+    public void createUser(String username, String email, String password, Collection<String> rolesList) {
+        LOG.info("creating new user: " + username);
+
+        Users newUser = new Users();
+        newUser.setUsername(username);
+        newUser.setEmail(email);
+
+        // hash uim parola
+        newUser.setPassword(passwordBean.convertToSha256(password));
+
+        if (rolesList != null && !rolesList.isEmpty()) {
+            // luam primul rol din lista
+            String roleNameStr = rolesList.iterator().next();
+            Roles userRole = null;
+
+            try {
+                // incercam sa gasim rolul in baza de date
+                TypedQuery<Roles> query = entityManager.createQuery(
+                        "SELECT r FROM Roles r WHERE r.roleName = :roleName", Roles.class);
+                query.setParameter("roleName", roleNameStr);
+                userRole = query.getSingleResult();
+
+            } catch (NoResultException e) {
+                // daca rolul nu exista deloc in baza de date il cream acum
+                LOG.info("role " + roleNameStr + " not found, creating a new one");
+                userRole = new Roles();
+                userRole.setroleName(roleNameStr);
+
+                // nu mai setam username ul pe rol deoarece acest rol e impartit de mai multi useri
+                entityManager.persist(userRole);
+            }
+
+            // legam rolul gasit sau creat de noul utilizator
+            newUser.setRole(userRole);
+        }
+
+        // la final salvam utilizatorul
+        entityManager.persist(newUser);
+    }
+
+    private void assignRolesToUser(String username, Collection<String> roles) {
+        LOG.info("Assigning roles for user: " + username);
+
+        for (String roleName : roles) {
+            // instantiem entitatea folosind un nume diferit fata de string
+            Roles userRole = new Roles();
+
+            // setam proprietatile pe instanta creata nu pe clasa
+            userRole.setUsername(username);
+            userRole.setroleName(roleName);
+
+            // salvam rolul in baza de date
+            entityManager.persist(userRole);
+        }
+    }
+
+    }

@@ -1,11 +1,12 @@
 package com.pricewatch.pricewatch.ejb;
 
+import jakarta.ejb.Stateless;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+@Stateless
 public class PasswordBean {
 
     private static final Logger LOG = Logger.getLogger(PasswordBean.class.getName());

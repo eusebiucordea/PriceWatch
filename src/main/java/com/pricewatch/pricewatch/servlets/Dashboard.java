@@ -17,13 +17,13 @@ import java.util.List;
 @WebServlet(name = "Dashboard", value = "/Dashboard")
 public class Dashboard extends HttpServlet {
 
-    @Inject
+    @EJB
     private ScraperBean scraperBean;
 
-    @Inject
+    @EJB
     private WatchlistBean watchlistBean;
 
-    @Inject
+    @EJB
     private UsersBean usersBean;
 
     @Override

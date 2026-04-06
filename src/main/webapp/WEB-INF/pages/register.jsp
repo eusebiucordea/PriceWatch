@@ -48,7 +48,6 @@
 
     <div class="min-h-[80vh] flex flex-col">
 
-        <!-- Main Content -->
         <main class="flex-grow flex items-center justify-center px-4">
             <div class="register-card w-full max-w-md p-10 shadow-sm fade-in">
                 <div class="text-center mb-10">
@@ -56,10 +55,10 @@
                     <p class="text-slate-500 mt-2 text-sm">Join PriceWatch today and start tracking prices.</p>
                 </div>
 
-                <!-- Action targets your registration servlet -->
                 <form action="${pageContext.request.contextPath}/Register" method="POST" class="space-y-6">
 
-                    <!-- Username -->
+                    <input type="hidden" name="user_groups" value="Member">
+
                     <div>
                         <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">Username</label>
                         <div class="relative">
@@ -72,7 +71,6 @@
                         </div>
                     </div>
 
-                    <!-- Email -->
                     <div>
                         <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
                         <div class="relative">
@@ -85,7 +83,6 @@
                         </div>
                     </div>
 
-                    <!-- Password -->
                     <div>
                         <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
                         <div class="relative">
@@ -103,7 +100,6 @@
                         <p class="mt-2 text-[11px] text-slate-400 font-medium italic">Must be at least 8 characters long.</p>
                     </div>
 
-                    <!-- Terms checkbox -->
                     <div class="flex items-start">
                         <input type="checkbox" id="terms" name="terms" required class="mt-1 w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
                         <label for="terms" class="ml-2 block text-sm text-slate-600 leading-tight">
@@ -111,7 +107,6 @@
                         </label>
                     </div>
 
-                    <!-- Register Button -->
                     <button type="submit" class="btn-primary w-full text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200">
                         Create Account
                     </button>

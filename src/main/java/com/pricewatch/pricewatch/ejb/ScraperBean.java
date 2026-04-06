@@ -64,10 +64,10 @@ public class ScraperBean {
 
         // aletx media galaxy
         STORES.put("altex", new StoreConfig("https://altex.ro/cauta/?q=%s", "a[href*='/cpd/']"));
-        STORE_SELECTORS.put("altex", "div.Price-current");
+        STORE_SELECTORS.put("altex", "div.text-red-brand span.Price-int");
 
         STORES.put("mediagalaxy", new StoreConfig("https://mediagalaxy.ro/cauta/?q=%s", "a[href*='/cpd/']"));
-        STORE_SELECTORS.put("mediagalaxy", "div.Price-current");
+        STORE_SELECTORS.put("mediagalaxy", "div.text-red-brand span.Price-int");
 
         // pcgarage
         STORES.put("pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.pb-name a, div.product_box_name a"));
@@ -99,7 +99,7 @@ public class ScraperBean {
         }
     }
 
-    @Schedule(hour = "*/2", minute = "0", persistent = false)
+    @Schedule(hour = "*", minute = "*/15", persistent = false)
     // hour = "*" pentru verificare la fiecare ora fixa
     // persistent = false - nu recupereaza verificarile perdute
     // "*/5" verifica daca se imaprte la 5 spre exemplu, minute = "*/5" verifica daca 12:11 se imparte la 5, nu se imparte doar cand este 12:15
