@@ -44,14 +44,14 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <button class="p-2 text-slate-400 hover:text-blue-600 relative bg-transparent border-none cursor-pointer">
+            <a href="${pageContext.request.contextPath}/Alerts" class="p-2 text-slate-400 hover:text-blue-600 relative bg-transparent border-none cursor-pointer">
                 <!-- bell icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
                 <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-            </button>
+            </a>
 
         <c:choose>
             <c:when test="${pageContext.request.getRemoteUser() == null}">

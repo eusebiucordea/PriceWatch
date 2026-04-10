@@ -119,7 +119,12 @@ public class ProductsBean {
     public void deleteProduct(Long productId) {
         Products product = entityManager.find(Products.class, productId);
         if (product != null) {
-            // stergem intai istoricul preturilor asociat cu linkurile acestui produs
+            // stergem produsul din toate listele de urmarire (WatchList) ale tuturor utilizatorilor
+            entityManager.createQuery("DELETE FROM WatchList w WHERE w.productId = :prodId")
+                    .setParameter("prodId", productId)
+                    .executeUpdate();
+
+            // stergem istoricul preturilor asociat cu linkurile acestui produs
             entityManager.createQuery("DELETE FROM PriceHistory ph WHERE ph.productLink.product.id = :prodId")
                     .setParameter("prodId", productId)
                     .executeUpdate();

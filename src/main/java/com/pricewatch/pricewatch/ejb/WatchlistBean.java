@@ -1,5 +1,6 @@
 package com.pricewatch.pricewatch.ejb;
 
+import com.pricewatch.pricewatch.common.AlertDTO;
 import com.pricewatch.pricewatch.common.ProductDto;
 import com.pricewatch.pricewatch.entities.Products;
 import com.pricewatch.pricewatch.entities.WatchList;
@@ -108,4 +109,30 @@ public class WatchlistBean {
             throw new RuntimeException("Error saving price alert", e);
         }
     }
+
+    // aduce alertele din dashboard care au target_discount > 0
+    public List<AlertDTO> getActiveAlerts(int userId) {
+        // luam id-ul, numele, pretul si discountul setat, DOAR daca discountul este mai mare ca 0
+        String query = "SELECT new com.pricewatch.pricewatch.common.AlertDTO(p.id, p.name, p.current_price, w.targetDiscount) " +
+                "FROM Products p JOIN WatchList w ON p.id = w.productId " +
+                "WHERE w.userId = :userId AND w.targetDiscount > 0";
+
+        return entityManager.createQuery(query, AlertDTO.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    public void removeAlert(int userId, Long productId) {
+        LOG.info("Attempting to remove alert for user " + userId + " and product " + productId);
+
+        int result = entityManager.createQuery(
+                        "UPDATE WatchList w SET w.targetDiscount = NULL " +
+                                "WHERE w.userId = :userId AND w.productId = :productId")
+                .setParameter("userId", userId)
+                .setParameter("productId", productId)
+                .executeUpdate();
+
+        LOG.info("Rows updated: " + result); // daca aici scrie 0, inseamna ca WHERE-ul nu a gasit nimic
+    }
+
 }

@@ -30,8 +30,7 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
                 <tr>
-                    <th class="px-6 py-4">ID</th>
-<%--                    <th class="px-6 py-4">Image</th>--%>
+<%--                    <th class="px-6 py-4">ID</th>--%>
                     <th class="px-6 py-4">Product Name</th>
                     <th class="px-6 py-4">Current Price</th>
                     <th class="px-6 py-4">All-Time Low</th>
@@ -41,12 +40,10 @@
                 <tbody class="divide-y divide-slate-100">
                 <c:forEach var="product" items="${products}">
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4 text-sm text-slate-500 font-mono">
-                            #${product.id}
-                        </td>
 <%--                        <td class="px-6 py-4 text-sm text-slate-500 font-mono">--%>
-<%--                                ${product.image_url}--%>
+<%--                            #${product.id}--%>
 <%--                        </td>--%>
+
                         <td class="px-6 py-4 font-semibold text-slate-800 max-w-sm truncate" title="${product.name}">
                                 ${product.name}
                         </td>
@@ -121,7 +118,7 @@
             // trecem prin fiecare rand pentru a verifica numele produsului
             for (let i = 0; i < rows.length; i++) {
                 // coloana cu numele produsului este a doua coloana index 1
-                const nameColumn = rows[i].getElementsByTagName("td")[1];
+                const nameColumn = rows[i].getElementsByTagName("td")[0];
 
                 if (nameColumn) {
                     const productName = nameColumn.textContent || nameColumn.innerText;

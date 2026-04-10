@@ -349,7 +349,7 @@ public class ScraperBean {
 
         // eliminam cuvintele care nu ne ajuta sa identificam unicitatea produsului
         java.util.Set<String> stopWords = new java.util.HashSet<>(java.util.Arrays.asList(
-                "telefon", "mobil", "smartphone", "smart", "tv", "televizor", "laptop", "gaming", "dual sim", "casti", "smartwatch",
+                "telefon", "mobil", "smartphone", "smart", "tv", "televizor", "laptop", "gaming", "dual", "sim", "casti", "smartwatch",
                 "wireless", "tableta", "tastatura"
         ));
         words1.removeAll(stopWords);
