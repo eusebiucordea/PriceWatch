@@ -28,6 +28,14 @@ public class ProductLink {
     @Column(name = "last_checked")
     private LocalDateTime lastChecked;
 
+    // seteaza un default de 12 ore
+    @Column(name = "check_interval_minutes", columnDefinition = "integer default 12")
+    private Integer checkIntervalMinutes = 720;
+
+    // cand trebuie verificat data viitoare
+    @Column(name = "next_check_at")
+    private LocalDateTime nextCheckAt;
+
     public Products getProduct() {
         return product;
     }
@@ -76,4 +84,19 @@ public class ProductLink {
         this.id = id;
     }
 
+    public Integer getCheckIntervalMinutes() {
+        return checkIntervalMinutes;
+    }
+
+    public void setCheckIntervalMinutes(Integer checkIntervalMinutes) {
+        this.checkIntervalMinutes = checkIntervalMinutes;
+    }
+
+    public LocalDateTime getNextCheckAt() {
+        return nextCheckAt;
+    }
+
+    public void setNextCheckAt(LocalDateTime nextCheckAt) {
+        this.nextCheckAt = nextCheckAt;
+    }
 }

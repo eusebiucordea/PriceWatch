@@ -6,10 +6,12 @@ import com.pricewatch.pricewatch.common.ProductLinkDto;
 import com.pricewatch.pricewatch.entities.ProductLink;
 import com.pricewatch.pricewatch.entities.Products;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -20,6 +22,9 @@ public class ProductsBean {
 
     @PersistenceContext
     EntityManager entityManager;
+
+    @Inject
+    private ScraperBean scraperBean;
 
     public List<ProductDto> findAllProducts() {
         LOG.info("Se extrag toate produsele din baza de date");
@@ -65,6 +70,17 @@ public class ProductsBean {
                     .setParameter("prodId", id)
                     .getResultList();
 
+            // muam intervalul setat de la primul link gasit (toate linkurile unui produs ar trebui sa aiba acelasi interval setat de admin)
+            if (!linkEntities.isEmpty() && linkEntities.get(0).getCheckIntervalMinutes() != null) {
+                int totalMinutesDb = linkEntities.get(0).getCheckIntervalMinutes();
+                productDto.setIntervalHours(totalMinutesDb / 60); // extragem orele intregi
+                productDto.setIntervalMinutes(totalMinutesDb % 60); // extragem restul de minute
+            } else {
+                // daca nu are interval setat, ii dam default 12 ore si 0 minute
+                productDto.setIntervalHours(12);
+                productDto.setIntervalMinutes(0);
+            }
+
             List<ProductLinkDto> linkDtos = new ArrayList<>();
 
             for (com.pricewatch.pricewatch.entities.ProductLink linkEntity : linkEntities) {
@@ -106,13 +122,14 @@ public class ProductsBean {
         return null;
     }
 
-    public void updateProduct(Long id, String name, Double currentPrice, Double allTimeLow) {
+    public void updateProduct(Long id, String name, Double currentPrice, Double allTimeLow, int totalMinutes) {
         Products entity = entityManager.find(Products.class, id);
         if (entity != null) {
             entity.setName(name);
             entity.setCurrent_price(currentPrice);
             entity.setAll_time_low(allTimeLow);
             entityManager.merge(entity);
+            scraperBean.updateProductCheckInterval(id, totalMinutes);
         }
     }
 

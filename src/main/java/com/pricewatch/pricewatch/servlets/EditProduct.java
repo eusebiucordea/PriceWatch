@@ -44,12 +44,31 @@ public class EditProduct extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Long id = Long.parseLong(request.getParameter("id"));
-        String name = request.getParameter("name");
-        Double currentPrice = Double.parseDouble(request.getParameter("current_price"));
-        Double allTimeLow = Double.parseDouble(request.getParameter("all_time_low"));
+        try {
+            Long id = Long.parseLong(request.getParameter("id"));
+            String name = request.getParameter("name");
+            Double currentPrice = Double.parseDouble(request.getParameter("current_price"));
+            Double allTimeLow = Double.parseDouble(request.getParameter("all_time_low"));
 
-        productsBean.updateProduct(id, name, currentPrice, allTimeLow);
-        response.sendRedirect(request.getContextPath() + "/Products");
+            // preluam intervalele noi introduse de admin
+            int hours = Integer.parseInt(request.getParameter("interval_hours"));
+            int minutes = Integer.parseInt(request.getParameter("interval_minutes"));
+
+            // calculam totalul in minute
+            int totalMinutes = (hours * 60) + minutes;
+
+            // REGULA DE SIGURANTA nu permitem verificAri mai dese de 15 minute
+            if (totalMinutes < 15) {
+                totalMinutes = 15;
+            }
+
+            // trimitem totalMinutes catre bean-ul care actualizeaza baza de date
+            productsBean.updateProduct(id, name, currentPrice, allTimeLow, totalMinutes);
+
+            response.sendRedirect(request.getContextPath() + "/Products");
+        } catch (Exception e) {
+            // in caz de eroare
+            response.sendRedirect(request.getContextPath() + "/Products");
+        }
     }
 }

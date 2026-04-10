@@ -109,11 +109,17 @@ public class ScraperBean {
     // persistent = false - nu recupereaza verificarile perdute
     // "*/5" verifica daca se imaprte la 5 spre exemplu, minute = "*/5" verifica daca 12:11 se imparte la 5, nu se imparte doar cand este 12:15
     public void scrapeAllProducts() {
-        LOG.info("start verificare preturi globale");
+        LOG.info("Puls de verificare: cautam link-uri programate pentru acest moment...");
 
-        List<ProductLink> allLinks = em.createQuery("SELECT pl FROM ProductLink pl", ProductLink.class).getResultList();
+        // tragem doar link-urile unde 'nextCheckAt' a fost depasit
+        List<ProductLink> dueLinks = em.createQuery(
+                        "SELECT pl FROM ProductLink pl WHERE pl.nextCheckAt IS NULL OR pl.nextCheckAt <= :acum",
+                        ProductLink.class)
+                .setParameter("acum", LocalDateTime.now())
+                .getResultList();
 
-        if (allLinks.isEmpty()) {
+        if (dueLinks.isEmpty()) {
+            LOG.info("Products dont need verification at the moment");
             return;
         }
 
@@ -125,7 +131,7 @@ public class ScraperBean {
 
             try (BrowserContext context = browser.newContext(contextOptions)) {
 
-                for (ProductLink link : allLinks) {
+                for (ProductLink link : dueLinks) {
                     try (Page page = context.newPage()) {
                         page.navigate(link.getUrl());
 
@@ -144,6 +150,11 @@ public class ScraperBean {
                             // 1. actualizam ProductLink (magazinul curent)
                             link.setLastPrice(noulPret);
                             link.setLastChecked(LocalDateTime.now());
+
+                            // SETARE INTERVAL URMATOR
+                            int interval = (link.getCheckIntervalMinutes() != null) ? link.getCheckIntervalMinutes() : 720;
+                            link.setNextCheckAt(LocalDateTime.now().plusMinutes(interval));
+
                             em.merge(link);
 
                             // 2. inregistram istoricul
@@ -196,7 +207,6 @@ public class ScraperBean {
 
                                     // 5. verificam daca acest nou pret curent minim este all time low
                                     Double curentAllTimeLow = product.getAll_time_low();
-
                                     if (curentAllTimeLow == null || lowestCurrentPrice < curentAllTimeLow) {
                                         product.setAll_time_low(lowestCurrentPrice);
                                     }
@@ -207,6 +217,11 @@ public class ScraperBean {
                         }
                     } catch (Exception e) {
                         LOG.warning("eroare verificare link: " + link.getUrl());
+
+                        // daca da eroare magazinul il reprogramam sa incerce din nou peste 1 ora,
+                        // ca sa nu ne blocam la infinit pe el incercand la fiecare 15 minute
+                        link.setNextCheckAt(LocalDateTime.now().plusMinutes(60));
+                        em.merge(link);
                     }
                 }
             }
@@ -304,6 +319,8 @@ public class ScraperBean {
                                     link.setUrl(extractedUrl);
                                     link.setLastPrice(price);
                                     link.setLastChecked(LocalDateTime.now());
+                                    link.setCheckIntervalMinutes(720);
+                                    link.setNextCheckAt(LocalDateTime.now().plusMinutes(720));
                                     em.persist(link);
 
                                     // salvam istoricul
@@ -474,6 +491,8 @@ public class ScraperBean {
                 link.setUrl(url);
                 link.setLastPrice(price);
                 link.setLastChecked(LocalDateTime.now());
+                link.setCheckIntervalMinutes(720);
+                link.setNextCheckAt(LocalDateTime.now().plusMinutes(720));
                 em.persist(link);
                 em.flush();
 
@@ -486,6 +505,26 @@ public class ScraperBean {
             }
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "eroare salvare produs din url", e);
+        }
+    }
+
+    //  pentru a lasa adminul sa schimbe intervalul din interfata
+    public void updateProductCheckInterval(Long productId, int minutes) {
+        if (minutes < 15) minutes = 15; // siguranta
+
+        List<ProductLink> links = em.createQuery("SELECT pl FROM ProductLink pl WHERE pl.product.id = :prodId", ProductLink.class)
+                .setParameter("prodId", productId)
+                .getResultList();
+
+        for(ProductLink link : links) {
+            link.setCheckIntervalMinutes(minutes);
+
+            if (link.getLastChecked() != null) {
+                link.setNextCheckAt(link.getLastChecked().plusMinutes(minutes));
+            } else {
+                link.setNextCheckAt(LocalDateTime.now().plusMinutes(minutes));
+            }
+            em.merge(link);
         }
     }
 }

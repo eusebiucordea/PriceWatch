@@ -1,6 +1,6 @@
 package com.pricewatch.pricewatch.servlets;
 
-import com.pricewatch.pricewatch.common.AlertDTO;
+import com.pricewatch.pricewatch.common.AlertDto;
 import com.pricewatch.pricewatch.ejb.UsersBean;
 import com.pricewatch.pricewatch.ejb.WatchlistBean;
 import jakarta.inject.Inject;
@@ -35,7 +35,7 @@ public class Alerts extends HttpServlet {
 
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId != null) {
-            List<AlertDTO> alertsList = watchlistBean.getActiveAlerts(userId);
+            List<AlertDto> alertsList = watchlistBean.getActiveAlerts(userId);
             request.setAttribute("alertsList", alertsList);
         }
 

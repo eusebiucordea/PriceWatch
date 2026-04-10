@@ -28,6 +28,23 @@
                 </div>
             </div>
 
+            <div class="pt-4 mt-2 border-t border-slate-100">
+                <h3 class="text-sm font-semibold text-slate-800 mb-3">Scraping Settings</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Interval (Hours)</label>
+                        <input type="number" min="0" name="interval_hours" value="${not empty product.intervalHours ? product.intervalHours : 12}" required
+                               class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Interval (Minutes)</label>
+                        <input type="number" min="0" max="59" name="interval_minutes" value="${not empty product.intervalMinutes ? product.intervalMinutes : 0}" required
+                               class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">* Minim allowed is 15 minutes to prevent server overload.</p>
+            </div>
+
             <div class="flex justify-end gap-3 mt-8">
                 <a href="${pageContext.request.contextPath}/Products"
                    class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium">

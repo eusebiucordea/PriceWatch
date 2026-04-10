@@ -1,6 +1,6 @@
 package com.pricewatch.pricewatch.common;
 
-public class AlertDTO {
+public class AlertDto {
 
     private Long productId;
     private String productName;
@@ -8,7 +8,7 @@ public class AlertDTO {
     private Integer targetDiscount;
 
 
-    public AlertDTO(Long productId, String productName, Double currentPrice, Integer targetDiscount) {
+    public AlertDto(Long productId, String productName, Double currentPrice, Integer targetDiscount) {
         this.productId = productId;
         this.productName = productName;
         this.currentPrice = currentPrice;

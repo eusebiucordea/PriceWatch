@@ -8,6 +8,8 @@ public class ProductDto {
     private String image_url;
     private Double all_time_low;
     private Double current_price;
+    private Integer intervalHours;
+    private Integer intervalMinutes;
 
     public ProductDto(Long id, String name, String image_url, Double all_time_low, Double current_price) {
         this.id = id;
@@ -65,5 +67,21 @@ public class ProductDto {
 
     public void setLinks(List<ProductLinkDto> links) {
         this.links = links;
+    }
+
+    public Integer getIntervalHours() {
+        return intervalHours;
+    }
+
+    public void setIntervalHours(Integer intervalHours) {
+        this.intervalHours = intervalHours;
+    }
+
+    public Integer getIntervalMinutes() {
+        return intervalMinutes;
+    }
+
+    public void setIntervalMinutes(Integer intervalMinutes) {
+        this.intervalMinutes = intervalMinutes;
     }
 }
