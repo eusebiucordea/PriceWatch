@@ -5,6 +5,7 @@ import com.pricewatch.pricewatch.entities.PriceHistory;
 import com.pricewatch.pricewatch.entities.ProductLink;
 import com.pricewatch.pricewatch.entities.Products;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -26,6 +27,10 @@ public class ScraperBean {
 
     @PersistenceContext
     private EntityManager em;
+
+    // injectam serviciul de email creat anterior
+    @Inject
+    private EmailBean emailBean;
 
     private static class StoreConfig {
         String searchUrlFormat;
@@ -71,7 +76,7 @@ public class ScraperBean {
 
         // pcgarage
         STORES.put("pc garage", new StoreConfig("https://www.pcgarage.ro/cautare/%s", "div.pb-name a, div.product_box_name a"));
-        STORE_SELECTORS.put("pc garage", "p.price");
+        STORE_SELECTORS.put("pc garage", "span.price_num");
 
         // flanco
         STORES.put("flanco", new StoreConfig("https://www.flanco.ro/catalogsearch/result/?q=%s", "a.product-item-link"));
@@ -159,6 +164,33 @@ public class ScraperBean {
                                 Double lowestCurrentPrice = getLowestCurrentPriceForProduct(product.getId());
 
                                 if (lowestCurrentPrice != null) {
+                                    // pastram pretul vechi inainte de a l actualiza pentru a putea face comparatia
+                                    Double oldPrice = product.getCurrent_price();
+
+                                    // verificam daca pretul actual este mai mic decat cel pe care il stiam
+                                    if (oldPrice != null && lowestCurrentPrice < oldPrice) {
+
+                                        // calculam cat la suta reprezinta reducerea
+                                        double dropPercentage = ((oldPrice - lowestCurrentPrice) / oldPrice) * 100.0;
+
+                                        // extragem din baza de date adresa de email si procentul din alerta setata de utilizatori
+                                        List<Object[]> usersToNotify = em.createQuery(
+                                                        "SELECT u.email, w.targetDiscount FROM Users u JOIN WatchList w ON u.id = w.userId " +
+                                                                "WHERE w.productId = :productId AND w.targetDiscount IS NOT NULL", Object[].class)
+                                                .setParameter("productId", product.getId())
+                                                .getResultList();
+
+                                        for (Object[] row : usersToNotify) {
+                                            String userEmail = (String) row[0];
+                                            Integer targetDiscount = (Integer) row[1];
+
+                                            // daca reducerea acopera dorinta utilizatorului trimitem alerta
+                                            if (dropPercentage >= targetDiscount) {
+                                                emailBean.sendPriceAlertEmail(userEmail, product.getName(), oldPrice, lowestCurrentPrice);
+                                            }
+                                        }
+                                    }
+
                                     // actualizam pretul de astazi
                                     product.setCurrent_price(lowestCurrentPrice);
 
@@ -317,7 +349,8 @@ public class ScraperBean {
 
         // eliminam cuvintele care nu ne ajuta sa identificam unicitatea produsului
         java.util.Set<String> stopWords = new java.util.HashSet<>(java.util.Arrays.asList(
-                "telefon", "mobil", "smartphone", "smart", "tv", "televizor", "laptop", "gaming"
+                "telefon", "mobil", "smartphone", "smart", "tv", "televizor", "laptop", "gaming", "dual sim", "casti", "smartwatch",
+                "wireless", "tableta", "tastatura"
         ));
         words1.removeAll(stopWords);
         words2.removeAll(stopWords);
@@ -357,7 +390,7 @@ public class ScraperBean {
         }
 
         // setam pragul de acceptare la 95% daca se potrivesc cel putin 95% e acelasi produs
-        if (highestScore >= 0.95) {
+        if (highestScore >= 0.90) {
             LOG.info("Am gasit o potrivire! '" + newProductName + "' se aseamana in proportie de " + (highestScore * 100) + "% cu '" + bestMatch.getName() + "'");
             return bestMatch;
         }

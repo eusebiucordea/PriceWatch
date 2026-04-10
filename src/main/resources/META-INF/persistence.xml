@@ -9,7 +9,6 @@
         <class>com.pricewatch.pricewatch.entities.Products</class>
         <class>com.pricewatch.pricewatch.entities.ProductLink</class>
         <class>com.pricewatch.pricewatch.entities.PriceHistory</class>
-        <class>com.pricewatch.pricewatch.entities.UserAlert</class>
         <class>com.pricewatch.pricewatch.entities.Roles</class>
         <class>com.pricewatch.pricewatch.entities.WatchList</class>
 
