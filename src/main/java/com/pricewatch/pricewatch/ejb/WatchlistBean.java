@@ -81,4 +81,31 @@ public class WatchlistBean {
 
         return watchlistDtoList;
     }
+
+    // seteaza procentajul de reducere dorit pentru un anumit produs din watchlist
+    public void setPriceAlert(int userId, int productId, int targetDiscount) {
+        LOG.info("setting price alert of " + targetDiscount + "% for product " + productId + " and user " + userId);
+
+        try {
+            // actualizam campul direct in baza de date
+            int updatedRows = entityManager.createQuery(
+                            "UPDATE WatchList w SET w.targetDiscount = :targetDiscount WHERE w.userId = :userId AND w.productId = :productId")
+                    .setParameter("targetDiscount", targetDiscount)
+                    .setParameter("userId", userId)
+                    .setParameter("productId", productId)
+                    .executeUpdate();
+
+            // aruncam o eroare daca produsul nu a fost gasit in lista utilizatorului
+            if (updatedRows == 0) {
+                LOG.warning("could not set alert product " + productId + " is not in watchlist for user " + userId);
+                throw new IllegalArgumentException("Product is not in your watchlist");
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            // inregistram eroarea in loguri si aruncam o exceptie generala pentru servlet
+            LOG.severe("error setting price alert for user " + userId + " on product " + productId + ": " + e.getMessage());
+            throw new RuntimeException("Error saving price alert", e);
+        }
+    }
 }

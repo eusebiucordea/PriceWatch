@@ -16,13 +16,24 @@ public class WatchList {
     private int id;
 
     @Column(name = "user_id", nullable = false)
-    private int userId; // Am schimbat din user_id în userId (camelCase este standard în Java)
+    private int userId;
 
     @Column(name = "product_id", nullable = false)
     private int productId; // camelCase
 
     @Column(name = "added_at")
     private LocalDateTime addedAt;
+
+    @Column(name = "target_discount")
+    private Integer targetDiscount;
+
+    public Integer getTargetDiscount() {
+        return targetDiscount;
+    }
+
+    public void setTargetDiscount(Integer targetDiscount) {
+        this.targetDiscount = targetDiscount;
+    }
 
     public WatchList() {
     }

@@ -87,12 +87,21 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end items-center gap-2">
+
+                                <button onclick="openAlertModal(${product.id}, '${product.name}', ${product.current_price})"
+                                        title="Set Price Alert"
+                                        class="p-1.5 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded-md transition-all">
+                                    <i data-lucide="bell" class="w-5 h-5">Alert</i>
+                                </button>
+
                                 <a href="${pageContext.request.contextPath}/ViewDetails?id=${product.id}" title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
                                     <i data-lucide="info" class="w-5 h-5"></i>
                                 </a>
+
                                 <button onclick="removeFromDashboard(${product.id}, '${pageContext.request.contextPath}')" title="Remove from Watchlist" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
                                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                                 </button>
+
                             </div>
                         </td>
                     </tr>
@@ -108,6 +117,34 @@
 
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <%-- pop up pentru setare alerte --%>
+    <div id="alertModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center z-50 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md transform transition-all scale-95 opacity-0" id="alertModalContent">
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Set Price Alert</h3>
+            <p class="text-sm text-slate-500 mb-4" id="modalProductName">Product Name</p>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Notify me when the price drops by (%):</label>
+                <div class="flex items-center gap-4">
+                    <input type="number" id="discountPercentage" min="1" max="99" value="10"
+                           class="block w-24 px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                           oninput="calculateTargetPrice()">
+                    <span class="text-slate-500 text-sm font-medium">
+                Target Price: <span id="targetPriceDisplay" class="font-bold text-green-600">0 RON</span>
+            </span>
+                </div>
+            </div>
+
+            <input type="hidden" id="modalProductId">
+            <input type="hidden" id="modalCurrentPrice">
+
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="closeAlertModal()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                <button onclick="savePriceAlert('${pageContext.request.contextPath}')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">Save Alert</button>
+            </div>
         </div>
     </div>
 

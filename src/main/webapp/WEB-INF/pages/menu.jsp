@@ -17,6 +17,11 @@
         </div>
 
         <div class="hidden md:flex items-center gap-8">
+            <a href="${pageContext.request.contextPath}/"
+               class="nav-link-custom text-sm font-semibold transition-colors ${activePage eq '' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'} no-underline">
+                Home
+            </a>
+
             <a href="${pageContext.request.contextPath}/Dashboard"
                class="nav-link-custom text-sm font-semibold transition-colors ${activePage eq 'Dashboard' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'} no-underline">
                 Dashboard

@@ -81,3 +81,72 @@ function removeFromDashboard(productId, contextPath) {
             alert('An error occurred. The product could not be removed.');
         });
 }
+
+// deschide modalul si populeaza datele
+function openAlertModal(id, name, currentPrice) {
+    document.getElementById('modalProductId').value = id;
+    document.getElementById('modalCurrentPrice').value = currentPrice;
+    document.getElementById('modalProductName').textContent = name;
+
+    // resetam la zece la suta si calculam pretul
+    document.getElementById('discountPercentage').value = 10;
+    calculateTargetPrice();
+
+    // afisare cu animatie tailwind
+    const modal = document.getElementById('alertModal');
+    const content = document.getElementById('alertModalContent');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+// inchide modalul
+function closeAlertModal() {
+    const modal = document.getElementById('alertModal');
+    const content = document.getElementById('alertModalContent');
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+}
+
+// calculeaza pretul tinta live in functie de procentaj
+function calculateTargetPrice() {
+    const currentPrice = parseFloat(document.getElementById('modalCurrentPrice').value);
+    const percent = parseFloat(document.getElementById('discountPercentage').value);
+
+    if(!isNaN(currentPrice) && !isNaN(percent)) {
+        const targetPrice = currentPrice - (currentPrice * (percent / 100));
+        document.getElementById('targetPriceDisplay').textContent = targetPrice.toFixed(2) + ' RON';
+    }
+}
+
+// salveaza alerta in baza de date folosind fetch
+function savePriceAlert(contextPath) {
+    const productId = document.getElementById('modalProductId').value;
+    const percentage = document.getElementById('discountPercentage').value;
+
+    fetch(`${contextPath}/SetAlert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `productId=${productId}&percentage=${percentage}`
+    })
+        .then(response => response.json())
+        .then(data => {
+            // afisam mesajele de eroare sau succes in engleza
+            if (data.status === 'success') {
+                alert('Price alert saved successfully');
+                closeAlertModal();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            // inregistram eroarea in consola in engleza
+            console.error('Fetch error processing alert request', error);
+            alert('Network error occurred while saving the alert');
+        });
+}
