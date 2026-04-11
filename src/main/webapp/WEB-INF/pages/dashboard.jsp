@@ -21,14 +21,14 @@
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
             <div>
                 <p class="text-sm font-medium text-slate-500">Recently Dropped</p>
-                <p class="text-2xl font-bold text-slate-900">-</p>
+                <p class="text-2xl font-bold text-slate-900">${not empty recentlyDroppedCount ? recentlyDroppedCount : 0}</p>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
             <div>
                 <p class="text-sm font-medium text-slate-500">At All-Time Low</p>
-                <p class="text-2xl font-bold text-slate-900">-</p>
+                <p class="text-2xl font-bold text-slate-900">${not empty allTimeLowCount ? allTimeLowCount : 0}</p>
             </div>
         </div>
 

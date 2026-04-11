@@ -202,6 +202,7 @@ public class ScraperBean {
                                         }
                                     }
 
+                                    product.setOld_price(product.getCurrent_price());
                                     // actualizam pretul de astazi
                                     product.setCurrent_price(lowestCurrentPrice);
 
@@ -239,6 +240,7 @@ public class ScraperBean {
         newProduct.setImage_url("");
         newProduct.setCurrent_price(999999.99);
         newProduct.setAll_time_low(999999.99);
+        newProduct.setOld_price(999999.99);
         em.persist(newProduct);
         em.flush();
 
@@ -345,6 +347,7 @@ public class ScraperBean {
         if (lowestFoundPrice < 999999.99) {
             newProduct.setCurrent_price(lowestFoundPrice);
             newProduct.setAll_time_low(lowestFoundPrice);
+            newProduct.setOld_price(lowestFoundPrice);
             if (!firstFoundImage.isEmpty()) {
                 newProduct.setImage_url(firstFoundImage);
             }
@@ -480,6 +483,7 @@ public class ScraperBean {
                     targetProduct.setImage_url(imageUrl);
                     targetProduct.setCurrent_price(price);
                     targetProduct.setAll_time_low(price);
+                    targetProduct.setOld_price(price);
                     em.persist(targetProduct);
                     em.flush();
                 }

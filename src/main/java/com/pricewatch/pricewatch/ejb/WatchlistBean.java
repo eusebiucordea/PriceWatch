@@ -75,7 +75,8 @@ public class WatchlistBean {
                     entity.getName(),
                     entity.getImage_url(),
                     entity.getAll_time_low(),
-                    entity.getCurrent_price()
+                    entity.getCurrent_price(),
+                    entity.getOld_price()
             );
             watchlistDtoList.add(dto);
         }

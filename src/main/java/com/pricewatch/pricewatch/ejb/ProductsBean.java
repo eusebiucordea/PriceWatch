@@ -43,7 +43,8 @@ public class ProductsBean {
                     entity.getName(),
                     entity.getImage_url(),
                     entity.getAll_time_low(),
-                    entity.getCurrent_price()
+                    entity.getCurrent_price(),
+                    entity.getOld_price()
             );
             productsDtoList.add(dto);
         }
@@ -61,7 +62,8 @@ public class ProductsBean {
                     entity.getName(),
                     entity.getImage_url(),
                     entity.getAll_time_low(),
-                    entity.getCurrent_price()
+                    entity.getCurrent_price(),
+                    entity.getOld_price()
             );
 
             // extragem link urile asociate acestui produs

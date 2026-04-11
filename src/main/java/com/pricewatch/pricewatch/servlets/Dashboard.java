@@ -61,7 +61,34 @@ public class Dashboard extends HttpServlet {
 
         // extrage lista de favorite a utilizatorului si o ataseaza la cerere
         List<ProductDto> myWatchlist = watchlistBean.getUserWatchlist(userId);
+
+        int allTimeLowCount = 0;
+        int recentlyDroppedCount = 0;
+
+        if (myWatchlist != null) {
+            for (ProductDto product : myWatchlist) {
+
+                Double current = product.getCurrent_price();
+                Double allTimeLow = product.getAll_time_low();
+                Double old = product.getOld_price();
+
+                // Regula de aur: Verificăm ( != null ) înainte să folosim operatorii matematici!
+                if (current != null && allTimeLow != null && current <= allTimeLow) {
+                    allTimeLowCount++;
+                }
+
+                // Aici apărea eroarea ta. Acum, dacă old este null, codul se oprește
+                // la "old != null" și nu mai încearcă să facă unboxing pentru "current < old"
+                if (current != null && old != null && current < old) {
+                    recentlyDroppedCount++;
+                }
+            }
+        }
+
+        // Atașăm lista și numerele la request
         request.setAttribute("watchlist", myWatchlist);
+        request.setAttribute("allTimeLowCount", allTimeLowCount);
+        request.setAttribute("recentlyDroppedCount", recentlyDroppedCount);
 
         // trimite cererea catre pagina jsp dashboard
         request.getRequestDispatcher("/WEB-INF/pages/dashboard.jsp").forward(request,response);

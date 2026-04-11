@@ -22,6 +22,17 @@ public class Products {
     @Column(name = "current_price")
     private Double current_price;
 
+    @Column(name = "old_price")
+    private Double old_price;
+
+    public Double getOld_price() {
+        return old_price;
+    }
+
+    public void setOld_price(Double old_price) {
+        this.old_price = old_price;
+    }
+
     public Double getCurrent_price() {
         return current_price;
     }

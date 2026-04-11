@@ -8,15 +8,27 @@ public class ProductDto {
     private String image_url;
     private Double all_time_low;
     private Double current_price;
+    private Double old_price;
+
     private Integer intervalHours;
     private Integer intervalMinutes;
+    private List<ProductLinkDto> links;
 
-    public ProductDto(Long id, String name, String image_url, Double all_time_low, Double current_price) {
+    public ProductDto(Long id, String name, String image_url, Double all_time_low, Double current_price, Double old_price) {
         this.id = id;
         this.name = name;
         this.image_url = image_url;
         this.all_time_low = all_time_low;
         this.current_price = current_price;
+        this.old_price = old_price;
+    }
+
+    public Double getOld_price() {
+        return old_price;
+    }
+
+    public void setOld_price(Double old_price) {
+        this.old_price = old_price;
     }
 
     public Long getId() {
@@ -58,8 +70,6 @@ public class ProductDto {
     public void setCurrent_price(Double current_price) {
         this.current_price = current_price;
     }
-
-    private List<ProductLinkDto> links;
 
     public List<ProductLinkDto> getLinks() {
         return links;
