@@ -15,10 +15,10 @@ public class Roles {
     private Long id;
 
     @Column(name = "roleName", nullable = false)
-    private String roleName; // admin/user
+    private String roleName; // Admin/Member
 
-    @Column(name = "username")
-    private String username;
+    @OneToMany(mappedBy = "role", orphanRemoval = true)
+    private Collection<Users> users = new ArrayList<>();
 
     public String getroleName() {
         return roleName;
@@ -28,14 +28,6 @@ public class Roles {
         this.roleName = roleName;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public Long getId() {
         return id;
     }
@@ -43,9 +35,6 @@ public class Roles {
     public void setId(Long id) {
         this.id = id;
     }
-
-    @OneToMany(mappedBy = "role", orphanRemoval = true)
-    private Collection<Users> users = new ArrayList<>();
 
     public Collection<Users> getUsers() {
         return users;

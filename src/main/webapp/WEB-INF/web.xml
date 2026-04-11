@@ -10,4 +10,11 @@
             <form-login-page>/Login</form-login-page>
             <form-error-page>/Login?error=true</form-error-page> </form-login-config>
     </login-config>
+
+    <security-role>
+        <role-name>Admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>Member</role-name>
+    </security-role>
 </web-app>

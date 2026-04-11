@@ -29,7 +29,7 @@ public class Register extends HttpServlet {
         // preluam rolurile si reparam numele variabilei
         String[] roles = request.getParameterValues("user_groups");
 
-        // setam un rol default daca utilizatorul nu a bifat nimic
+        // setam un rol default
         if (roles == null || roles.length == 0) {
             roles = new String[]{"Member"};
         }

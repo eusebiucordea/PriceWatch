@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 
 @WebServlet(name = "ViewDetails", value = "/ViewDetails")
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class ViewDetails extends HttpServlet {
 
     @Inject

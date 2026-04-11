@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 
 @WebServlet(name = "SetAlert", value = "/SetAlert")
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class SetAlert extends HttpServlet {
 
     @EJB

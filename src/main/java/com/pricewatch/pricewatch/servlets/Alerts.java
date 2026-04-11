@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "Alerts", value = "/Alerts")
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class Alerts extends HttpServlet {
 
     @Inject

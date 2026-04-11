@@ -3,6 +3,8 @@ package com.pricewatch.pricewatch.servlets;
 import com.pricewatch.pricewatch.ejb.ScraperBean;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.HttpConstraint;
+import jakarta.servlet.annotation.ServletSecurity;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet(name = "AddProduct", value = "/AddProduct")
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class AddProduct extends HttpServlet {
 
     @Inject

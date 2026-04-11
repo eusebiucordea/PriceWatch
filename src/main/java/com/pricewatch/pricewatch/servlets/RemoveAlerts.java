@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 
 @WebServlet(name = "RemoveAlerts", value = "/RemoveAlerts")
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class RemoveAlerts extends HttpServlet {
 
      @Inject

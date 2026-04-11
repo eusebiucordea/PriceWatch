@@ -34,7 +34,7 @@
                                 ${item.productName}
                         </td>
                         <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-50 text-slate-700">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-green-50 text-green-600">
                                     ${item.currentPrice} RON
                                 </span>
                         </td>

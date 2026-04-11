@@ -77,15 +77,17 @@
                                 <a href="${pageContext.request.contextPath}/ViewDetails?id=${product.id}" title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
                                     <i data-lucide="info" class="w-5 h-5">View Details</i>
                                 </a>
-                                <a href="${pageContext.request.contextPath}/EditProduct?id=${product.id}" title="Edit" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all inline-block">
-                                    <i data-lucide="edit" class="w-5 h-5">Edit</i>
-                                </a>
-                                <form action="${pageContext.request.contextPath}/DeleteProduct" method="POST" class="inline-block m-0" onsubmit="return confirm('Esti sigur ca vrei sa stergi acest produs? Tot istoricul de preturi va fi pierdut.');">
-                                    <input type="hidden" name="id" value="${product.id}">
-                                    <button type="submit" title="Delete Product" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
-                                        <i data-lucide="trash-2" class="w-5 h-5">Delete</i>
-                                    </button>
-                                </form>
+                                <c:if test="${pageContext.request.isUserInRole('Admin')}">
+                                    <a href="${pageContext.request.contextPath}/EditProduct?id=${product.id}" title="Edit" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all inline-block">
+                                        <i data-lucide="edit" class="w-5 h-5">Edit</i>
+                                    </a>
+                                    <form action="${pageContext.request.contextPath}/DeleteProduct" method="POST" class="inline-block m-0" onsubmit="return confirm('Esti sigur ca vrei sa stergi acest produs? Tot istoricul de preturi va fi pierdut.');">
+                                        <input type="hidden" name="id" value="${product.id}">
+                                        <button type="submit" title="Delete Product" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
+                                            <i data-lucide="trash-2" class="w-5 h-5">Delete</i>
+                                        </button>
+                                    </form>
+                                </c:if>
                             </div>
                         </td>
                     </tr>

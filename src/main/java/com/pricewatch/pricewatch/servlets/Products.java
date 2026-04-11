@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "Products", value = "/Products")
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class Products extends HttpServlet {
 
     @Inject

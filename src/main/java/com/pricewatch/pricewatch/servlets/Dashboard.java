@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "Dashboard", value = "/Dashboard")
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class Dashboard extends HttpServlet {
 
     @EJB

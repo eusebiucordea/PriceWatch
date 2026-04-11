@@ -126,7 +126,6 @@ public class UsersBean {
             Roles userRole = new Roles();
 
             // setam proprietatile pe instanta creata nu pe clasa
-            userRole.setUsername(username);
             userRole.setroleName(roleName);
 
             // salvam rolul in baza de date
