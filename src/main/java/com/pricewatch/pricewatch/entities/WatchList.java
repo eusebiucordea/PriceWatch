@@ -19,7 +19,7 @@ public class WatchList {
     private int userId;
 
     @Column(name = "product_id", nullable = false)
-    private int productId; // camelCase
+    private int productId;
 
     @Column(name = "added_at")
     private LocalDateTime addedAt;

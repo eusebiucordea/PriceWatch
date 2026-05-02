@@ -28,13 +28,13 @@
                    class="nav-link-custom text-sm font-semibold transition-colors ${activePage eq 'Dashboard' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'} no-underline">
                     Dashboard
                 </a>
-
+                <c:if test="${pageContext.request.isUserInRole('Admin')}">
                 <a href="${pageContext.request.contextPath}/Products"
                    class="nav-link-custom text-sm font-semibold transition-colors ${activePage eq 'Products' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'} no-underline">
                     Products
                 </a>
 
-                <c:if test="${pageContext.request.isUserInRole('Admin')}">
+
                     <a href="${pageContext.request.contextPath}/Users"
                        class="nav-link-custom text-sm font-semibold transition-colors ${activePage eq 'Users' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'} no-underline">
                         Users

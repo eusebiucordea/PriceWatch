@@ -94,4 +94,10 @@ public class ProductDto {
     public void setIntervalMinutes(Integer intervalMinutes) {
         this.intervalMinutes = intervalMinutes;
     }
+
+    public int getTotalIntervalMinutes() {
+        int h = (intervalHours != null) ? intervalHours : 0;
+        int m = (intervalMinutes != null) ? intervalMinutes : 0;
+        return (h * 60) + m;
+    }
 }

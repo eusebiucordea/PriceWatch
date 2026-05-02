@@ -38,8 +38,9 @@
 
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between">
             <h3 class="text-lg font-bold text-slate-800">Watchlist</h3>
-            <a href="${pageContext.request.contextPath}/Products" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                Browse full catalog &rarr;
+            <a href="${pageContext.request.contextPath}/AddProduct"
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center  hover:bg-blue-700 transition-colors">
+                Add Product
             </a>
         </div>
 
@@ -89,16 +90,23 @@
                             <div class="flex justify-end items-center gap-2">
 
                                 <button onclick="openAlertModal(${product.id}, '${product.name}', ${product.current_price})"
-                                        title="Set Price Alert"
+                                        title="Price Alert"
                                         class="p-1.5 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded-md transition-all">
                                     <i data-lucide="bell" class="w-5 h-5">Alert</i>
                                 </button>
 
-                                <a href="${pageContext.request.contextPath}/ViewDetails?id=${product.id}" title="View Details" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
+                                <a href="${pageContext.request.contextPath}/UpdateScraping?id=${product.id}"
+                                   class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
+                                    <i data-lucide="clock" class="w-5 h-5"></i>
+                                </a>
+
+                                <a href="${pageContext.request.contextPath}/ViewDetails?id=${product.id}" title="View Details"
+                                   class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all">
                                     <i data-lucide="info" class="w-5 h-5"></i>
                                 </a>
 
-                                <button onclick="removeFromDashboard(${product.id}, '${pageContext.request.contextPath}')" title="Remove from Watchlist" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
+                                <button onclick="removeFromDashboard(${product.id}, '${pageContext.request.contextPath}')" title="Remove from Watchlist"
+                                        class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all">
                                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                                 </button>
 

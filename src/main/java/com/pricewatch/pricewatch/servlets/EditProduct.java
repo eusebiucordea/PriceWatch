@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet(name = "EditProduct", value = "/EditProduct")
-@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin"}))
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"Admin", "Member"}))
 public class EditProduct extends HttpServlet {
 
     @Inject
