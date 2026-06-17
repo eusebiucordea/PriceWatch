@@ -9,45 +9,35 @@
         <p class="text-slate-500 mt-2">Welcome back! Here is an overview of the products you are tracking.</p>
     </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
-                <div>
-                    <p class="text-sm font-medium text-slate-500">Tracked Products</p>
-                    <p class="text-2xl font-bold text-slate-900">${not empty watchlist ? watchlist.size() : 0}</p>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
+            <div>
+                <p class="text-sm font-medium text-slate-500">Tracked Products</p>
+                <p class="text-2xl font-bold text-slate-900">${not empty watchlist ? watchlist.size() : 0}</p>
             </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
-                <div>
-                    <p class="text-sm font-medium text-slate-500">Recently Dropped</p>
-                    <p class="text-2xl font-bold text-slate-900">${not empty recentlyDroppedCount ? recentlyDroppedCount : 0}</p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
-                <div>
-                    <p class="text-sm font-medium text-slate-500">At All-Time Low</p>
-                    <p class="text-2xl font-bold text-slate-900">${not empty allTimeLowCount ? allTimeLowCount : 0}</p>
-                </div>
-            </div>
-
         </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
+            <div>
+                <p class="text-sm font-medium text-slate-500">Recently Dropped</p>
+                <p class="text-2xl font-bold text-slate-900">${not empty recentlyDroppedCount ? recentlyDroppedCount : 0}</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
+            <div>
+                <p class="text-sm font-medium text-slate-500">At All-Time Low</p>
+                <p class="text-2xl font-bold text-slate-900">${not empty allTimeLowCount ? allTimeLowCount : 0}</p>
+            </div>
+        </div>
+
+    </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
 
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between">
             <h3 class="text-lg font-bold text-slate-800">Watchlist</h3>
-
-            <div class="relative flex-1 max-w-md w-full">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
-                </div>
-                <input type="text" id="searchInput" onkeyup="filterProducts()"
-                       class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
-                       placeholder="Caută produs după nume...">
-            </div>
-
             <a href="${pageContext.request.contextPath}/AddProduct"
                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center  hover:bg-blue-700 transition-colors">
                 Add Product
@@ -165,36 +155,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        //searchbar
-        function filterProducts() {
-            // preluam valoarea din input si o transformam in litere mici
-            const input = document.getElementById("searchInput");
-            const filter = input.value.toLowerCase();
-
-            // selectam toate randurile din corpul tabelului
-            const tbody = document.querySelector("table tbody");
-            const rows = tbody.getElementsByTagName("tr");
-
-            // trecem prin fiecare rand pentru a verifica numele produsului
-            for (let i = 0; i < rows.length; i++) {
-                // coloana cu numele produsului este a doua coloana index 1
-                const nameColumn = rows[i].getElementsByTagName("td")[0];
-
-                if (nameColumn) {
-                    const productName = nameColumn.textContent || nameColumn.innerText;
-
-                    // verificam daca numele contine textul cautat
-                    if (productName.toLowerCase().indexOf(filter) > -1) {
-                        rows[i].style.display = ""; // afiseaza randul
-                    } else {
-                        rows[i].style.display = "none"; // ascunde randul
-                    }
-                }
-            }
-        }
-    </script>
 
     <script src="${pageContext.request.contextPath}/scripts/dashboard.js"></script>
 
