@@ -44,4 +44,3 @@ bin/
 
 ### Password, Configurations ###
 **/config.properties
-**/TestEmailServlet.java
