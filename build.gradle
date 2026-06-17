@@ -21,6 +21,13 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+task installPlaywrightBrowsers(type: JavaExec) {
+    dependsOn 'compileJava'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.microsoft.playwright.CLI'
+    args = ['install']
+}
+
 dependencies {
     compileOnly('jakarta.platform:jakarta.jakartaee-api:10.0.0')
     compileOnly('org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1')
