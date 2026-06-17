@@ -4,6 +4,7 @@ import com.microsoft.playwright.*;
 import com.pricewatch.pricewatch.entities.PriceHistory;
 import com.pricewatch.pricewatch.entities.ProductLink;
 import com.pricewatch.pricewatch.entities.Products;
+import com.pricewatch.pricewatch.entities.WatchList;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -231,8 +232,16 @@ public class ScraperBean {
         }
     }
 
-    public void searchAndAddNewProduct(String productName) {
+    public void searchAndAddNewProduct(String productName, Long userId) {
         LOG.info("Incepere cautare automata pentru: " + productName);
+
+        // verificare daca produsul exista deja in baza de date
+        Products existingProduct = findBestMatchingProduct(productName);
+        if (existingProduct != null) {
+            LOG.info("Produsul '" + productName + "' exista deja in sistem! Il adaugam doar in dashboard-ul utilizatorului " + userId);
+            addToWatchlist(userId, existingProduct.getId());
+            return; // oprim executia, nu mai rulam playwright deloc pentru a nu face duplicate
+        }
 
         // cream produsul de baza cu numele temporar
         Products newProduct = new Products();
@@ -242,7 +251,7 @@ public class ScraperBean {
         newProduct.setAll_time_low(999999.99);
         newProduct.setOld_price(999999.99);
         em.persist(newProduct);
-        em.flush();
+        em.flush(); // il salvam ca sa ii generam un ID unic
 
         String encodedProductName = URLEncoder.encode(productName, StandardCharsets.UTF_8);
         Double lowestFoundPrice = 999999.99;
@@ -253,8 +262,7 @@ public class ScraperBean {
              Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))) {
 
             Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
-                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-
+                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
             try (BrowserContext context = browser.newContext(contextOptions)) {
 
                 for (Map.Entry<String, StoreConfig> entry : STORES.entrySet()) {
@@ -282,9 +290,8 @@ public class ScraperBean {
 
                                 String priceText = page.locator(priceSelector).first().innerText();
                                 Double price = parsePriceText(priceText);
-
                                 if (price != null) {
-                                    // extragem h1 de pe pagina produsului (daca nu l-am extras deja)
+                                    // extragem h1 de pe pagina produsului
                                     if (!isNameUpdated) {
                                         try {
                                             if (page.locator("h1").count() > 0) {
@@ -343,7 +350,7 @@ public class ScraperBean {
             LOG.log(Level.SEVERE, "Eroare initializare Playwright in cautare automata", e);
         }
 
-        // update in baza de date
+        // update final in baza de date cu cel mai bun pret gasit
         if (lowestFoundPrice < 999999.99) {
             newProduct.setCurrent_price(lowestFoundPrice);
             newProduct.setAll_time_low(lowestFoundPrice);
@@ -353,6 +360,9 @@ public class ScraperBean {
             }
             em.merge(newProduct);
         }
+
+        // il adaugam in watchlist-ul utilizatorului
+        addToWatchlist(userId, newProduct.getId());
     }
 
     // functia care calculeaza cat de mult se aseamana doua nume (returneaza intre 0.0 si 1.0)
@@ -385,11 +395,9 @@ public class ScraperBean {
         java.util.Set<String> intersection = new java.util.HashSet<>(words1);
         intersection.retainAll(words2);
 
-        // calculam procentajul (ne raportam la titlul mai scurt pentru a nu fi penalizati de magazinele care scriu romane in titlu)
-        int minSize = Math.min(words1.size(), words2.size());
-        if (minSize == 0) return 0.0;
-
-        return (double) intersection.size() / minSize;
+        // folosim formula Sørensen–Dice pentru o potrivire mult mai logica
+        // aceasta nu mai ofera 100% daca un cuvant e doar o parte din altul.
+        return (2.0 * intersection.size()) / (words1.size() + words2.size());
     }
 
     // functia care cauta in toata baza de date produsul cel mai asemanator
@@ -409,7 +417,7 @@ public class ScraperBean {
             }
         }
 
-        // setam pragul de acceptare la 95% daca se potrivesc cel putin 95% e acelasi produs
+        // setam pragul de acceptare la 90% daca se potrivesc cel putin 90% e acelasi produs
         if (highestScore >= 0.90) {
             LOG.info("Am gasit o potrivire! '" + newProductName + "' se aseamana in proportie de " + (highestScore * 100) + "% cu '" + bestMatch.getName() + "'");
             return bestMatch;
@@ -417,18 +425,32 @@ public class ScraperBean {
         return null;
     }
 
-    public void addProductFromUrl(String url, String storeName) {
+    // am adaugat parametrul Long userId
+    public void addProductFromUrl(String url, String storeName, Long userId) {
         storeName = storeName.toLowerCase().trim();
         String priceSelector = STORE_SELECTORS.get(storeName);
 
         if (priceSelector == null) return;
 
+        //  verificare avem deja acest link in baza de date
+        List<ProductLink> existingLinks = em.createQuery(
+                        "SELECT pl FROM ProductLink pl WHERE pl.url = :url", ProductLink.class)
+                .setParameter("url", url)
+                .getResultList();
+
+        if (!existingLinks.isEmpty()) {
+            LOG.info("Link-ul exista deja in sistem! Adaugam produsul asociat in watchlist.");
+            Products existingProduct = existingLinks.get(0).getProduct();
+            addToWatchlist(userId, existingProduct.getId());
+            return; // oprim executia nu mai deschidem playwright
+        }
+
+        // daca link ul e nou pornim playwright
         try (Playwright playwright = Playwright.create();
              Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))) {
 
             Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
-                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-
+                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
             try (BrowserContext context = browser.newContext(contextOptions);
                  Page page = context.newPage()) {
 
@@ -436,6 +458,7 @@ public class ScraperBean {
                 page.waitForSelector(priceSelector, new Page.WaitForSelectorOptions().setTimeout(15000));
 
                 String productName = "Produs Necunoscut";
+                // extragere nume
                 try {
                     if (page.locator("h1").count() > 0) {
                         productName = page.locator("h1").first().innerText().trim();
@@ -447,27 +470,24 @@ public class ScraperBean {
                 }
 
                 String imageUrl = "";
+                // extragere imagine
                 try {
                     Locator imgLocator = page.locator("meta[property='og:image']");
-                    if (imgLocator.count() > 0) {
-                        imageUrl = imgLocator.first().getAttribute("content");
-                    }
-                } catch (Exception e) {
-                    LOG.warning("imagine produs indisponibila");
-                }
+                    if (imgLocator.count() > 0) imageUrl = imgLocator.first().getAttribute("content");
+                } catch (Exception e) {}
 
                 String priceText = page.locator(priceSelector).first().innerText();
                 Double price = parsePriceText(priceText);
 
                 if (price == null) return;
 
+                //  verificare avem produsul dar e link nou
                 Products existingProduct = findBestMatchingProduct(productName);
-
                 Products targetProduct;
 
                 // daca l-am gasit (scor peste 80%) il folosim daca nu cream unul nou
                 if (existingProduct != null) {
-                    LOG.info("produsul exista deja in baza de date (potrivire gasita). adaugam doar link-ul.");
+                    LOG.info("Produsul exista deja (alt link). Il folosim pe acela.");
                     targetProduct = existingProduct;
 
                     // actualizam pretul cel mai mic la nivel de produs daca este cazul
@@ -477,7 +497,7 @@ public class ScraperBean {
                         em.merge(targetProduct);
                     }
                 } else {
-                    LOG.info("produs nou (nu am gasit nicio potrivire). il cream acum.");
+                    LOG.info("Produs complet nou. Il cream acum.");
                     targetProduct = new Products();
                     targetProduct.setName(productName);
                     targetProduct.setImage_url(imageUrl);
@@ -498,7 +518,6 @@ public class ScraperBean {
                 link.setCheckIntervalMinutes(720);
                 link.setNextCheckAt(LocalDateTime.now().plusMinutes(720));
                 em.persist(link);
-                em.flush();
 
                 // salvam istoricul de pret pentru acest link
                 PriceHistory history = new PriceHistory();
@@ -506,6 +525,10 @@ public class ScraperBean {
                 history.setPrice(price);
                 history.setRecordedAt(LocalDateTime.now());
                 em.persist(history);
+                em.flush(); // ne asiguram ca e totul in DB
+
+                // Il adaugam in watchlist
+                addToWatchlist(userId, targetProduct.getId());
             }
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "eroare salvare produs din url", e);
@@ -514,7 +537,7 @@ public class ScraperBean {
 
     //  pentru a lasa adminul sa schimbe intervalul din interfata
     public void updateProductCheckInterval(Long productId, int minutes) {
-        if (minutes < 15) minutes = 15; // siguranta
+        if (minutes < 30) minutes = 30; // siguranta
 
         List<ProductLink> links = em.createQuery("SELECT pl FROM ProductLink pl WHERE pl.product.id = :prodId", ProductLink.class)
                 .setParameter("prodId", productId)
@@ -529,6 +552,37 @@ public class ScraperBean {
                 link.setNextCheckAt(LocalDateTime.now().plusMinutes(minutes));
             }
             em.merge(link);
+        }
+    }
+
+    //  adaugare in watchlist
+    private void addToWatchlist(Long userId, Long productId) {
+        try {
+            // verificam daca produsul este deja in watchlist-ul acestui user
+            // folosim .intValue() ca sa se potriveasca cu tipurile din entitatea ta
+            Long count = em.createQuery(
+                            "SELECT COUNT(w) FROM WatchList w WHERE w.userId = :userId AND w.productId = :productId", Long.class)
+                    .setParameter("userId", userId.intValue())
+                    .setParameter("productId", productId.intValue())
+                    .getSingleResult();
+
+            // daca nu exista il adaugam
+            if (count == 0) {
+                WatchList watchList = new WatchList();
+
+                // transformam din Long in int pentru a rezolva eroarea
+                watchList.setUserId(userId.intValue());
+                watchList.setProductId(productId.intValue());
+
+                em.persist(watchList); // salvam in baza de date
+                em.flush(); // fortam sincronizarea cu baza de date
+
+                LOG.info("Produsul " + productId + " a fost adaugat cu succes in watchlist-ul userului " + userId);
+            } else {
+                LOG.info("Produsul este deja in watchlist-ul acestui user.");
+            }
+        } catch (Exception e) {
+            LOG.severe("Eroare la adaugarea in watchlist: " + e.getMessage());
         }
     }
 }
